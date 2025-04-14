@@ -26,7 +26,7 @@ def get_all_game_ids(season='2024-25'):
 def build_player_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save_csv=True):
     games_df = get_all_game_ids(season)
     games_df.sort_values('GAME_DATE', inplace=True)
-    
+
     # Split into chunks
     chunk_size = len(games_df) // num_chunks
     start_idx = chunk_index * chunk_size
@@ -34,36 +34,30 @@ def build_player_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save
     chunk_df = games_df.iloc[start_idx:end_idx].reset_index(drop=True)
 
     print(f"[✓] Processing chunk {chunk_index + 1}/{num_chunks}: {len(chunk_df)} games")
-
     all_rows = []
 
     for i, row in chunk_df.iterrows():
         game_id = row['GAME_ID']
         game_date = row['GAME_DATE']
-        
 
         try:
             print(f"[{i+1}/{len(chunk_df)}] Processing {game_id}")
-            box = boxscoreadvancedv2.BoxScoreAdvancedV2(game_id=game_id)
-            player_stats = box.get_data_frames()[0]  # TeamStats
-            player_stats['GAME_ID'] = game_id
-            player_stats['GAME_DATE'] = game_date
-            
 
-            slim = player_stats[[
-                'GAME_ID', 'TEAM_ID', 'PLAYER_ID', 'PLAYER_NAME', 'START_POSITION',
-                'E_NET_RATING', 'NET_RATING', 'AST_PCT', 'OREB_PCT', 'DREB_PCT', 'REB_PCT', 
+            # Advanced stats
+            adv = boxscoreadvancedv2.BoxScoreAdvancedV2(game_id=game_id).get_data_frames()[0]
+            adv = adv[[
+                'PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'START_POSITION',
+                'E_NET_RATING', 'NET_RATING', 'AST_PCT', 'OREB_PCT', 'DREB_PCT', 'REB_PCT',
                 'TM_TOV_PCT', 'USG_PCT', 'E_USG_PCT', 'E_PACE', 'PACE', 'POSS', 'PIE'
             ]]
 
-            # Traditional for points by type
-            box = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id)
-            player_trad = box.get_data_frames()[0]
-            player_trad['PTS_3'] = player_trad['FG3M'] * 3
-            player_trad['PTS_2'] = (player_trad['FGM'] - player_trad['FG3M']) * 2
-            player_trad['PTS_FT'] = player_trad['FTM']
+            # Traditional stats
+            trad = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id).get_data_frames()[0]
+            trad['PTS_3'] = trad['FG3M'] * 3
+            trad['PTS_2'] = (trad['FGM'] - trad['FG3M']) * 2
+            trad['PTS_FT'] = trad['FTM']
 
-            # Hustle stats
+            # Hustle
             hustle = boxscorehustlev2.BoxScoreHustleV2(game_id=game_id).get_data_frames()[0]
             hustle = hustle[['PLAYER_ID', 'LOOSE_BALLS_RECOVERED', 'SCREEN_ASSISTS']]
 
@@ -71,15 +65,18 @@ def build_player_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save
             track = boxscoreplayertrackv2.BoxScorePlayerTrackV2(game_id=game_id).get_data_frames()[0]
             track = track[['PLAYER_ID', 'TCHS']]
 
-            # Misc (for transition points)
+            # Misc
             misc = boxscoremiscv2.BoxScoreMiscV2(game_id=game_id).get_data_frames()[0]
             misc = misc[['PLAYER_ID', 'PTS_FB']]
 
-            # Merge everything
-            merged = player_trad.merge(hustle, on='PLAYER_ID', how='left') \
-                                .merge(track, on='PLAYER_ID', how='left') \
-                                .merge(misc, on='PLAYER_ID', how='left')\
-                                .merge(slim, on='PLAYER_ID', how='left')
+            # Merge
+            merged = trad.merge(adv, on='PLAYER_ID', how='left') \
+                         .merge(hustle, on='PLAYER_ID', how='left') \
+                         .merge(track, on='PLAYER_ID', how='left') \
+                         .merge(misc, on='PLAYER_ID', how='left')
+
+            merged['GAME_ID'] = game_id
+            merged['GAME_DATE'] = game_date
 
             all_rows.append(merged)
             time.sleep(1.0)
