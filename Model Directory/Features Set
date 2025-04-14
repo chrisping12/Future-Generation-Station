@@ -59,18 +59,90 @@ Feature-Set
 'is_starter'
 
 
-How do you purpose we go about adding these seemlessly into our model?
-TEAM
-rolling_opp_blocks_5g = BoxScoretraditionalV3 (TeamStats): (use 'blocks' column)
-rolling_opp_steals_5g = BoxScoreTraditionalV3 (TeamStats): (use 'steals' column)
-rolling_opp_fouls_5g  = BoxScoreTraditionalV3 (TeamStats): (use 'foulsPersonal' column)
+Perfect. Here’s a roadmap to cleanly integrate those features into your pipeline:
 
-PLAYER
-rolling_pts_from_3_5g = BoxScoreTraditionalV3 (use 'threePointersMade' column *3)
-rolling_pts_from_2_5g = BoxScoreTraditionalV3 (use 'fieldGoalsMade' minus 'threePointersMade' column *2)
-rolling_pts_from_ft_5g = BoxScoreTraditionalV3 (use 'freeThrowsMade' column)
-rolling_looseball_rec_5g = BoxScoreHustleV2 (use 'looseBallsRecoveredTotal column)
-rolling_screen_ast_5g = BoxScoreHustleV2 ( use 'screenAssist' column
-touches_to_pts_ratio = BoxScorePlayerTrackV2 (use 'TCHS' column)
-transition_pts_pct = BoxScoreMiscV2 (use 'PTS FB' Column)
-is_weekend_game
+⸻
+
+1. Extend team_adv_tracker.py
+
+Add this to your loop in build_team_adv_dataset() to pull from BoxScoreTraditionalV3:
+
+from nba_api.stats.endpoints import boxscoretraditionalv3
+
+# After your advanced stats call
+box = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id)
+team_traditional = box.get_data_frames()[1]  # Team stats
+
+team_traditional = team_traditional[['TEAM_ID', 'BLK', 'STL', 'PF']]
+team_traditional.columns = ['TEAM_ID', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']
+
+team_stats = pd.merge(team_stats, team_traditional, on='TEAM_ID', how='left')
+
+Then engineer these rolling features later in your FeatureBuilder:
+	•	rolling_opp_blocks_5g
+	•	rolling_opp_steals_5g
+	•	rolling_opp_fouls_5g
+
+⸻
+
+2. Extend player_adv_tracker.py
+
+In each loop of build_player_adv_dataset():
+
+from nba_api.stats.endpoints import boxscoretraditionalv3, boxscorehustlev2, boxscoreplayertrackv2, boxscoremiscv2
+
+# Traditional for points by type
+box = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id)
+player_trad = box.get_data_frames()[0]
+player_trad['PTS_3'] = player_trad['FG3M'] * 3
+player_trad['PTS_2'] = (player_trad['FGM'] - player_trad['FG3M']) * 2
+player_trad['PTS_FT'] = player_trad['FTM']
+
+# Hustle stats
+hustle = boxscorehustlev2.BoxScoreHustleV2(game_id=game_id).get_data_frames()[0]
+hustle = hustle[['PLAYER_ID', 'LOOSE_BALLS_RECOVERED', 'SCREEN_ASSISTS']]
+
+# Player tracking
+track = boxscoreplayertrackv2.BoxScorePlayerTrackV2(game_id=game_id).get_data_frames()[0]
+track = track[['PLAYER_ID', 'TCHS']]
+
+# Misc (for transition points)
+misc = boxscoremiscv2.BoxScoreMiscV2(game_id=game_id).get_data_frames()[0]
+misc = misc[['PLAYER_ID', 'PTS_FB']]
+
+# Merge everything
+merged = player_trad.merge(hustle, on='PLAYER_ID', how='left') \
+                    .merge(track, on='PLAYER_ID', how='left') \
+                    .merge(misc, on='PLAYER_ID', how='left')
+
+
+
+⸻
+
+3. Add is_weekend_game Feature
+
+In FeatureBuilder._calculate_rolling_features():
+
+is_weekend_game = int(current_game['GAME_DATE'].weekday() >= 5)
+
+
+
+⸻
+
+4. Rolling Logic in FeatureBuilder
+
+Add rolling logic:
+
+rolling_pts_from_3_5g = past_games['PTS_3'].mean()
+rolling_pts_from_2_5g = past_games['PTS_2'].mean()
+rolling_pts_from_ft_5g = past_games['PTS_FT'].mean()
+rolling_looseball_rec_5g = past_games['LOOSE_BALLS_RECOVERED'].mean()
+rolling_screen_ast_5g = past_games['SCREEN_ASSISTS'].mean()
+touches_to_pts_ratio = past_games['PTS'].sum() / max(past_games['TCHS'].sum(), 1)
+transition_pts_pct = past_games['PTS_FB'].sum() / max(past_games['PTS'].sum(), 1)
+
+
+
+⸻
+
+Would you like the updated row = {} dictionary line with all these new keys preformatted too?
