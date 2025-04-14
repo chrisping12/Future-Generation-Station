@@ -14,7 +14,7 @@ from nba_api.stats.library.parameters import SeasonAll
 def get_all_game_ids(season ='2024-25'):
     print("[*] Fetching all game IDs...")
     gf = leaguegamefinder.LeagueGameFinder(season_nullable=season)
-    games = gf.get_data_frames()[0]
+    games = gf.get_data_frames()[00]
     games = games[['GAME_ID', 'GAME_DATE']]
     games.drop_duplicates(subset='GAME_ID', inplace=True)
     games['GAME_DATE'] = pd.to_datetime(games['GAME_DATE'])
@@ -48,7 +48,7 @@ def build_team_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save_c
             slim = team_stats[[
                 'TEAM_ID', 'TEAM_NAME', 'GAME_ID', 'GAME_DATE',
                 'OFF_RATING', 'DEF_RATING', 'E_OFF_RATING', 'E_DEF_RATING',
-                'AST_PCT', 'REB_PCT'
+                'AST_PCT', 'REB_PCT', 'PACE', 'E_PACE'
             ]]
 
             all_rows.append(slim)
@@ -68,6 +68,9 @@ def build_team_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save_c
     return full_df
 
 if __name__ == '__main__':
+    
+    """Change the 'chunk_index=__' after running each set. Start with 0, then 1, then 2, then 3"""
+    
     # Step 1: Run chunk 1
     chunk_df = build_team_adv_dataset(season='2024-25', chunk_index=3, save_csv=True)
     # Preview the output
