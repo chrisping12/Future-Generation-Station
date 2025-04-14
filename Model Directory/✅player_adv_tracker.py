@@ -1,6 +1,6 @@
 import pandas as pd
 import time
-from nba_api.stats.endpoints import leaguegamefinder, boxscoreadvancedv2
+from nba_api.stats.endpoints import leaguegamefinder, boxscoreadvancedv2, boxscoretraditionalv3, boxscorehustlev2, boxscoreplayertrackv2, boxscoremiscv2
 from nba_api.stats.library.parameters import SeasonAll
 
 """
@@ -56,7 +56,32 @@ def build_player_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save
                 'TM_TOV_PCT', 'USG_PCT', 'E_USG_PCT', 'E_PACE', 'PACE', 'POSS', 'PIE'
             ]]
 
-            all_rows.append(slim)
+            # Traditional for points by type
+            box = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id)
+            player_trad = box.get_data_frames()[0]
+            player_trad['PTS_3'] = player_trad['FG3M'] * 3
+            player_trad['PTS_2'] = (player_trad['FGM'] - player_trad['FG3M']) * 2
+            player_trad['PTS_FT'] = player_trad['FTM']
+
+            # Hustle stats
+            hustle = boxscorehustlev2.BoxScoreHustleV2(game_id=game_id).get_data_frames()[0]
+            hustle = hustle[['PLAYER_ID', 'LOOSE_BALLS_RECOVERED', 'SCREEN_ASSISTS']]
+
+            # Player tracking
+            track = boxscoreplayertrackv2.BoxScorePlayerTrackV2(game_id=game_id).get_data_frames()[0]
+            track = track[['PLAYER_ID', 'TCHS']]
+
+            # Misc (for transition points)
+            misc = boxscoremiscv2.BoxScoreMiscV2(game_id=game_id).get_data_frames()[0]
+            misc = misc[['PLAYER_ID', 'PTS_FB']]
+
+            # Merge everything
+            merged = player_trad.merge(hustle, on='PLAYER_ID', how='left') \
+                                .merge(track, on='PLAYER_ID', how='left') \
+                                .merge(misc, on='PLAYER_ID', how='left')\
+                                .merge(slim, on='PLAYER_ID', how='left')
+
+            all_rows.append(merged)
             time.sleep(1.0)
 
         except Exception as e:

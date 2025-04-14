@@ -1,6 +1,6 @@
 import pandas as pd
 import time
-from nba_api.stats.endpoints import leaguegamefinder, boxscoreadvancedv2
+from nba_api.stats.endpoints import leaguegamefinder, boxscoreadvancedv2, boxscoretraditionalv3
 from nba_api.stats.library.parameters import SeasonAll
 
 """
@@ -14,7 +14,7 @@ from nba_api.stats.library.parameters import SeasonAll
 def get_all_game_ids(season ='2024-25'):
     print("[*] Fetching all game IDs...")
     gf = leaguegamefinder.LeagueGameFinder(season_nullable=season)
-    games = gf.get_data_frames()[00]
+    games = gf.get_data_frames()[0]
     games = games[['GAME_ID', 'GAME_DATE']]
     games.drop_duplicates(subset='GAME_ID', inplace=True)
     games['GAME_DATE'] = pd.to_datetime(games['GAME_DATE'])
@@ -51,12 +51,22 @@ def build_team_adv_dataset(season='2024-25', chunk_index=0, num_chunks=4, save_c
                 'AST_PCT', 'REB_PCT', 'PACE', 'E_PACE'
             ]]
 
+            box = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id)
+            team_traditional = box.get_data_frames()[1]  # Team stats
+
+            team_traditional = team_traditional[['TEAM_ID', 'BLK', 'STL', 'PF']]
+            team_traditional.columns = ['TEAM_ID', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']
+
+            team_stats = pd.merge(team_stats, team_traditional, on='TEAM_ID', how='left')
+
+
             all_rows.append(slim)
             time.sleep(1.0)
 
         except Exception as e:
             print(f"[!] Error fetching {game_id}: {e}")
             continue
+
 
     full_df = pd.concat(all_rows, ignore_index=True)
 
