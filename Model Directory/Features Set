@@ -57,3 +57,20 @@ Feature-Set
 'starts_as_G'
 'starts_as_F'
 'is_starter'
+
+
+Still to add:
+
+TEAM
+rolling_opp_blocks_5g      = BoxScoretraditionalV3
+rolling_opp_fouls_5g       = BoxScoreTraditionalV3
+
+PLAYER
+rolling_pts_from_3_5g      = BoxScoreTraditionalV3
+rolling_pts_from_2_5g      = BoxScoreTraditionalV3
+rolling_pts_from_ft_5g     = BoxScoreTraditionalV3
+rolling_looseball_rec_5g   = BoxScoreHustleV2
+rolling_screen_ast_5g      = BoxScoreHustleV2
+touches_to_pts_ratio       = BoxScorePlayerTrackV2
+transition_pts_pct         = BoxScoreMiscV2 (OPP_PTS_FB)| BoxScoreScoringV2 (PCT_PTS_FB)
+is_weekend_game
