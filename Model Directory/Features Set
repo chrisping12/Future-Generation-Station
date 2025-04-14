@@ -59,18 +59,18 @@ Feature-Set
 'is_starter'
 
 
-Still to add:
-
+How do you purpose we go about adding these seemlessly into our model?
 TEAM
-rolling_opp_blocks_5g      = BoxScoretraditionalV3
-rolling_opp_fouls_5g       = BoxScoreTraditionalV3
+rolling_opp_blocks_5g = BoxScoretraditionalV3 (TeamStats): (use 'blocks' column)
+rolling_opp_steals_5g = BoxScoreTraditionalV3 (TeamStats): (use 'steals' column)
+rolling_opp_fouls_5g  = BoxScoreTraditionalV3 (TeamStats): (use 'foulsPersonal' column)
 
 PLAYER
-rolling_pts_from_3_5g      = BoxScoreTraditionalV3
-rolling_pts_from_2_5g      = BoxScoreTraditionalV3
-rolling_pts_from_ft_5g     = BoxScoreTraditionalV3
-rolling_looseball_rec_5g   = BoxScoreHustleV2
-rolling_screen_ast_5g      = BoxScoreHustleV2
-touches_to_pts_ratio       = BoxScorePlayerTrackV2
-transition_pts_pct         = BoxScoreMiscV2 (OPP_PTS_FB)| BoxScoreScoringV2 (PCT_PTS_FB)
+rolling_pts_from_3_5g = BoxScoreTraditionalV3 (use 'threePointersMade' column *3)
+rolling_pts_from_2_5g = BoxScoreTraditionalV3 (use 'fieldGoalsMade' minus 'threePointersMade' column *2)
+rolling_pts_from_ft_5g = BoxScoreTraditionalV3 (use 'freeThrowsMade' column)
+rolling_looseball_rec_5g = BoxScoreHustleV2 (use 'looseBallsRecoveredTotal column)
+rolling_screen_ast_5g = BoxScoreHustleV2 ( use 'screenAssist' column
+touches_to_pts_ratio = BoxScorePlayerTrackV2 (use 'TCHS' column)
+transition_pts_pct = BoxScoreMiscV2 (use 'PTS FB' Column)
 is_weekend_game
