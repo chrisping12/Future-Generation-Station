@@ -1,106 +1,94 @@
-Here’s how you can get everything working smoothly together so your enriched features from __feature_helpers.py and team_stat_helpers.py pass correctly into your final merged_df inside TnP_merger.py.
+Absolutely — plotting decision boundaries can really help you visualize how different feature combinations separate classes. Here’s a full drop-in loop that will:
+	•	Take your dataset and labels.
+	•	Use a classifier (default: LogisticRegression or change to another like RandomForestClassifier).
+	•	Loop over all 2D combinations of the top 5 features.
+	•	Fit the classifier and plot decision boundaries.
+	•	Save each plot to a folder.
 
 ⸻
 
-Step 1: Fix team_adv_tracker.py to Export All Necessary Columns
+Full Code: plot_decision_boundaries.py
 
-You’re gathering some columns (TEAM_BLK, TEAM_STL, TEAM_PF) but they aren’t actually added to full_df, so your CSV ends up missing them.
-
-Fix: Append enriched team_stats not just the slim version.
-
-Replace this:
-
-all_rows.append(slim)
-
-With this:
-
-all_rows.append(team_stats)
-
-And add these missing columns to team_stats[[]] if needed.
-
-Full section should now look like:
-
-box = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
-team_traditional = box.get_data_frames()[1]  # Team stats
-team_traditional = team_traditional[['TEAM_ID', 'BLK', 'STL', 'PF']]
-team_traditional.columns = ['TEAM_ID', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']
-
-team_stats = pd.merge(team_stats, team_traditional, on='TEAM_ID', how='left')
-
-# Retain only useful columns including TEAM_BLK etc
-final_stats = team_stats[[
-    'TEAM_ID', 'TEAM_NAME', 'GAME_ID', 'GAME_DATE',
-    'OFF_RATING', 'DEF_RATING', 'E_OFF_RATING', 'E_DEF_RATING',
-    'AST_PCT', 'REB_PCT', 'PACE', 'E_PACE',
-    'TEAM_BLK', 'TEAM_STL', 'TEAM_PF'
-]]
-
-all_rows.append(final_stats)
-
-
-
-⸻
-
-Step 2: Confirm load_team_stats() Reads the Correct Merged File
-
-After all chunks are processed, you need to concatenate them into one file (e.g., merged_player_team_adv_stats_2024-25.csv) that contains all games.
-
-If you haven’t done this yet, create a quick merger script:
-
+import os
+import itertools
+import numpy as np
 import pandas as pd
-import glob
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression  # Or use any other classifier
+from sklearn.model_selection import train_test_split
+from sklearn.inspection import DecisionBoundaryDisplay
 
-all_chunks = glob.glob("team_advanced_stats_chunk_*.csv")
-dfs = [pd.read_csv(f) for f in all_chunks]
-merged = pd.concat(dfs, ignore_index=True)
-merged.to_csv("merged_player_team_adv_stats_2024-25.csv", index=False)
-print("[✓] Merged all chunks into merged_player_team_adv_stats_2024-25.csv")
+def plot_decision_boundaries(df, labels, top_features, model=None, output_dir='decision_boundaries'):
+    """
+    Plots decision boundaries for every pair of top features and saves the plots.
 
-Now load_team_stats() will work properly.
+    Parameters:
+        df (pd.DataFrame): Feature DataFrame.
+        labels (pd.Series or array-like): Target labels.
+        top_features (list): Top 5 feature names to use for combinations.
+        model: Scikit-learn classifier. Default is LogisticRegression.
+        output_dir (str): Directory to save plots.
+    """
+
+    if model is None:
+        model = LogisticRegression()
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Loop through all 2D combinations of the top features
+    combos = list(itertools.combinations(top_features, 2))
+    for i, (feat1, feat2) in enumerate(combos):
+        print(f"[{i+1}/{len(combos)}] Plotting decision boundary for: {feat1} vs {feat2}")
+
+        X = df[[feat1, feat2]].copy()
+        y = np.array(labels)
+
+        # Scale features for better boundary plotting
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        # Train model
+        model.fit(X_scaled, y)
+
+        # Plot
+        disp = DecisionBoundaryDisplay.from_estimator(
+            model,
+            X_scaled,
+            response_method="predict",
+            alpha=0.5,
+            xlabel=feat1,
+            ylabel=feat2
+        )
+
+        # Plot points
+        scatter = disp.ax_.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, edgecolor='k', cmap='coolwarm', s=20)
+        disp.ax_.set_title(f"{feat1} vs {feat2}")
+        
+        # Save
+        file_path = os.path.join(output_dir, f"boundary_{feat1}_vs_{feat2}.png")
+        plt.savefig(file_path)
+        plt.close()
+
+    print(f"\nAll decision boundaries saved to: {output_dir}")
+
+# Example usage:
+# Assuming you already have `features_df` and `labels` defined:
+# top_features = ['PTS', 'USG_PCT', 'REB_5G', 'AST_5G', 'FG3A']
+# plot_decision_boundaries(features_df, labels, top_features)
+
+
 
 ⸻
 
-Step 3: Use enrich_with_adv_player_stats() in TnP_merger.py
-
-Assuming you’re processing each player’s game logs in TnP_merger.py, make sure you’re doing:
-
-from __feature_helpers import enrich_with_adv_player_stats
-
-# After loading or processing your past_games df
-past_games = enrich_with_adv_player_stats(past_games)
-
-This will automatically merge in:
-
-['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS']
-
-If you want to add the team-level block, steal, foul stats as well, you can update adv_columns in __feature_helpers.py:
-
-adv_columns = [
-    'PLAYER_ID', 'GAME_DATE', 
-    'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
-    'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF'
-]
-
-
+What You Need to Plug In
+	•	features_df: Your cleaned and scaled feature DataFrame.
+	•	labels: Your classification targets (e.g., 1 if they hit 20+ points, else 0).
+	•	top_features: A list of the 5 feature names you want to visualize boundaries for.
 
 ⸻
 
-Step 4: Validate Output Columns
-
-To ensure your merged_df contains everything you want, after enrichment, inspect:
-
-print("Final merged columns:", past_games.columns.tolist())
-print(past_games.head())
-
-If TEAM_ID or TEAM_ID_x issues happen again, add a guard:
-
-if 'TEAM_ID' in df.columns:
-    # use it
-elif 'TEAM_ID_x' in df.columns:
-    df.rename(columns={'TEAM_ID_x': 'TEAM_ID'}, inplace=True)
-
-
-
-⸻
-
-Let me know if you want this final TnP_merger.py implementation tied together in a full function example.
+Let me know if you’d like:
+	•	A 3D decision surface for 3-feature combinations,
+	•	To run this on only a specific player’s data,
+	•	Or if you’re using PySR and want to plot decision surfaces from symbolic formulas instead.
