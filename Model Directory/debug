@@ -1,7 +1,19 @@
-okay so in merged_df I have:
+Here’s exactly what you need — a clean block that renames the desired columns and drops the extras:
 
-'PLAYER_NAME_x' & 'PLAYER_NAME_y', I want to drop 'PLAYER_NAME_y', and keep 'PLAYER_NAME_x', but change it to: 'PLAYER_NAME'
-'START_POSITION_x' & 'START_POSITION_y', I want to drop 'START_POSITION_y', and keep 'START_POSITION_x' but change it to: 'START_POSITION'
-'GAME_DATE_x' & 'GAME_DATE_y', I want to drop 'GAME_DATE_y' and keep 'GAME_DATE_x' but rename it to 'GAME_DATE'
-'TEAM_ID' & 'TEAM_ID_y', I want to drop 'TEAM_ID_y'. 
+# Rename the columns you want to keep
+merged_df.rename(columns={
+    'PLAYER_NAME_x': 'PLAYER_NAME',
+    'START_POSITION_x': 'START_POSITION',
+    'GAME_DATE_x': 'GAME_DATE'
+}, inplace=True)
 
+# Drop the duplicate/unwanted columns
+merged_df.drop(columns=['PLAYER_NAME_y', 'START_POSITION_y', 'GAME_DATE_y', 'TEAM_ID_y'], inplace=True, errors='ignore')
+
+After this, your merged_df will be cleaned up and ready with the correct column names:
+	•	PLAYER_NAME
+	•	START_POSITION
+	•	GAME_DATE
+	•	TEAM_ID
+
+Let me know if you want to automatically handle this kind of cleanup for other suffix conflicts in the future.
