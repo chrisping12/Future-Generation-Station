@@ -1,18 +1,13 @@
-Traceback (most recent call last):
-  File "c:\Users\chrism\Documents\My Stuff\Code\Predictions\Future-Generation-Station-main\Model Directory\\u2705TnP_merger.py", line 34, in <module>
-    team_df = team_df[team_df['TEAM_ID'].str.isnumeric()]  # keep only numeric IDs
-                      ^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\pandas\core\generic.py", line 6299, in __getattr__
-    return object.__getattribute__(self, name)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\pandas\core\accessor.py", line 224, in __get__
-    accessor_obj = self._accessor(obj)
-                   ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\pandas\core\strings\accessor.py", line 191, in __init__
-    self._inferred_dtype = self._validate(data)
-                           ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\pandas\core\strings\accessor.py", line 245, in _validate
-    raise AttributeError("Can only use .str accessor with string values!")
-AttributeError: Can only use .str accessor with string values!. Did you mean: 'std'?
+Perfect — here’s Option 1 as a clean snippet you can drop into your script:
 
-[Done] exited with code=1 in 3.094 seconds
+# Convert TEAM_ID to numeric, forcing non-numeric values to NaN
+team_df['TEAM_ID'] = pd.to_numeric(team_df['TEAM_ID'], errors='coerce')
+
+# Drop rows where TEAM_ID is NaN (i.e., originally non-numeric)
+team_df = team_df[team_df['TEAM_ID'].notnull()]
+
+Optional: If you want TEAM_ID to be an integer again after filtering:
+
+team_df['TEAM_ID'] = team_df['TEAM_ID'].astype(int)
+
+Let me know if you’d like to apply the same cleanup to player data too.
