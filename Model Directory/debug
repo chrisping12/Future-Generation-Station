@@ -1,6 +1,111 @@
 Here are two files i have that i need working properly in my model. 
 
-1. = __feature_helpers.py ( see below )
+1. = __feature_Here’s how you can get everything working smoothly together so your enriched features from __feature_helpers.py and team_stat_helpers.py pass correctly into your final merged_df inside TnP_merger.py.
+
+⸻
+
+Step 1: Fix team_adv_tracker.py to Export All Necessary Columns
+
+You’re gathering some columns (TEAM_BLK, TEAM_STL, TEAM_PF) but they aren’t actually added to full_df, so your CSV ends up missing them.
+
+Fix: Append enriched team_stats not just the slim version.
+
+Replace this:
+
+all_rows.append(slim)
+
+With this:
+
+all_rows.append(team_stats)
+
+And add these missing columns to team_stats[[]] if needed.
+
+Full section should now look like:
+
+box = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
+team_traditional = box.get_data_frames()[1]  # Team stats
+team_traditional = team_traditional[['TEAM_ID', 'BLK', 'STL', 'PF']]
+team_traditional.columns = ['TEAM_ID', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']
+
+team_stats = pd.merge(team_stats, team_traditional, on='TEAM_ID', how='left')
+
+# Retain only useful columns including TEAM_BLK etc
+final_stats = team_stats[[
+    'TEAM_ID', 'TEAM_NAME', 'GAME_ID', 'GAME_DATE',
+    'OFF_RATING', 'DEF_RATING', 'E_OFF_RATING', 'E_DEF_RATING',
+    'AST_PCT', 'REB_PCT', 'PACE', 'E_PACE',
+    'TEAM_BLK', 'TEAM_STL', 'TEAM_PF'
+]]
+
+all_rows.append(final_stats)
+
+
+
+⸻
+
+Step 2: Confirm load_team_stats() Reads the Correct Merged File
+
+After all chunks are processed, you need to concatenate them into one file (e.g., merged_player_team_adv_stats_2024-25.csv) that contains all games.
+
+If you haven’t done this yet, create a quick merger script:
+
+import pandas as pd
+import glob
+
+all_chunks = glob.glob("team_advanced_stats_chunk_*.csv")
+dfs = [pd.read_csv(f) for f in all_chunks]
+merged = pd.concat(dfs, ignore_index=True)
+merged.to_csv("merged_player_team_adv_stats_2024-25.csv", index=False)
+print("[✓] Merged all chunks into merged_player_team_adv_stats_2024-25.csv")
+
+Now load_team_stats() will work properly.
+
+⸻
+
+Step 3: Use enrich_with_adv_player_stats() in TnP_merger.py
+
+Assuming you’re processing each player’s game logs in TnP_merger.py, make sure you’re doing:
+
+from __feature_helpers import enrich_with_adv_player_stats
+
+# After loading or processing your past_games df
+past_games = enrich_with_adv_player_stats(past_games)
+
+This will automatically merge in:
+
+['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS']
+
+If you want to add the team-level block, steal, foul stats as well, you can update adv_columns in __feature_helpers.py:
+
+adv_columns = [
+    'PLAYER_ID', 'GAME_DATE', 
+    'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
+    'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF'
+]
+
+
+
+⸻
+
+Step 4: Validate Output Columns
+
+To ensure your merged_df contains everything you want, after enrichment, inspect:
+
+print("Final merged columns:", past_games.columns.tolist())
+print(past_games.head())
+
+If TEAM_ID or TEAM_ID_x issues happen again, add a guard:
+
+if 'TEAM_ID' in df.columns:
+    # use it
+elif 'TEAM_ID_x' in df.columns:
+    df.rename(columns={'TEAM_ID_x': 'TEAM_ID'}, inplace=True)
+
+
+
+⸻
+
+Let me know if you want this final TnP_merger.py implementation tied together in a full function example..py ( see below )
 
 import pandas as pd 
 from _team_stat_helpers import get_team_stats_df
