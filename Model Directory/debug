@@ -1,94 +1,14 @@
-Absolutely — plotting decision boundaries can really help you visualize how different feature combinations separate classes. Here’s a full drop-in loop that will:
-	•	Take your dataset and labels.
-	•	Use a classifier (default: LogisticRegression or change to another like RandomForestClassifier).
-	•	Loop over all 2D combinations of the top 5 features.
-	•	Fit the classifier and plot decision boundaries.
-	•	Save each plot to a folder.
+This is from a .csv File I have that was the output of the PysR prediction. Can we use this file?
 
-⸻
+predictions_with_pysr.csv
 
-Full Code: plot_decision_boundaries.py
-
-import os
-import itertools
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression  # Or use any other classifier
-from sklearn.model_selection import train_test_split
-from sklearn.inspection import DecisionBoundaryDisplay
-
-def plot_decision_boundaries(df, labels, top_features, model=None, output_dir='decision_boundaries'):
-    """
-    Plots decision boundaries for every pair of top features and saves the plots.
-
-    Parameters:
-        df (pd.DataFrame): Feature DataFrame.
-        labels (pd.Series or array-like): Target labels.
-        top_features (list): Top 5 feature names to use for combinations.
-        model: Scikit-learn classifier. Default is LogisticRegression.
-        output_dir (str): Directory to save plots.
-    """
-
-    if model is None:
-        model = LogisticRegression()
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Loop through all 2D combinations of the top features
-    combos = list(itertools.combinations(top_features, 2))
-    for i, (feat1, feat2) in enumerate(combos):
-        print(f"[{i+1}/{len(combos)}] Plotting decision boundary for: {feat1} vs {feat2}")
-
-        X = df[[feat1, feat2]].copy()
-        y = np.array(labels)
-
-        # Scale features for better boundary plotting
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-
-        # Train model
-        model.fit(X_scaled, y)
-
-        # Plot
-        disp = DecisionBoundaryDisplay.from_estimator(
-            model,
-            X_scaled,
-            response_method="predict",
-            alpha=0.5,
-            xlabel=feat1,
-            ylabel=feat2
-        )
-
-        # Plot points
-        scatter = disp.ax_.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, edgecolor='k', cmap='coolwarm', s=20)
-        disp.ax_.set_title(f"{feat1} vs {feat2}")
-        
-        # Save
-        file_path = os.path.join(output_dir, f"boundary_{feat1}_vs_{feat2}.png")
-        plt.savefig(file_path)
-        plt.close()
-
-    print(f"\nAll decision boundaries saved to: {output_dir}")
-
-# Example usage:
-# Assuming you already have `features_df` and `labels` defined:
-# top_features = ['PTS', 'USG_PCT', 'REB_5G', 'AST_5G', 'FG3A']
-# plot_decision_boundaries(features_df, labels, top_features)
-
-
-
-⸻
-
-What You Need to Plug In
-	•	features_df: Your cleaned and scaled feature DataFrame.
-	•	labels: Your classification targets (e.g., 1 if they hit 20+ points, else 0).
-	•	top_features: A list of the 5 feature names you want to visualize boundaries for.
-
-⸻
-
-Let me know if you’d like:
-	•	A 3D decision surface for 3-feature combinations,
-	•	To run this on only a specific player’s data,
-	•	Or if you’re using PySR and want to plot decision surfaces from symbolic formulas instead.
+PLAYER_NAME,Player_ID,GAME_DATE,TEAM_ID,OPP_TEAM_ID,HOME_AWAY,rolling_pts_avg_5G,rolling_pts_median_5G,rolling_3pm_avg_5G,rolling_3pm_median_5G,rolling_min_avg_5G,rolling_std_pts_5G,pts_consistency_score,rest_days,is_b2b,rolling_opp_def_rating_5G,rolling_opp_ast_pct_5G,rolling_team_off_rating_5G,rolling_team_reb_pct_5G,team_pace,opp_pace,avg_game_pace,rolling_team_ast_pct_5G,rolling_opp_reb_pct_5G,latest_team_e_off_rating,latest_opp_e_def_rating,adjusted_pts_proj_def,rolling_usg_pct_5G,rolling_fg_pct_5G,rolling_fg3_pct_5G,rolling_fga_5G,delta_pts_vs_rolling,delta_min_vs_rolling,opp_def_trend_delta,adjusted_pts_proj_usg,shots_per_min,pts_per_fga,pts_per_min,pts_to_3pm_ratio,pts_trend_slope_5G,is_volume_shooter,is_trending_up,is_trending_down,high_efficiency,PTS,pysr_prediction
+Jayson Tatum,1628369,2024-11-01,1610612738,1610612766,0,30.2,37.0,4.6,5.0,35.2,9.959919678390984,3.032149922255152,2,0,115.44,0.5868,123.9,0.497,96.63,98.3,97.465,0.5538000000000001,0.5336000000000001,111.3,126.4,28.50262620421071,,0.493,0.373,21.0,6.800000000000001,,10.959999999999994,28.50262620421071,0.5965909090909091,1.438095238095238,0.8579545454545454,6.565217391304349,0,1,0,0,1,32,25.783174118538295
+Jayson Tatum,1628369,2024-11-02,1610612738,1610612766,0,29.2,32.0,3.6,3.0,36.4,9.338094023943002,3.126973090590004,1,1,119.81999999999998,0.5486,119.94,0.4921999999999999,96.63,98.3,97.465,0.5186,0.5208,123.5,123.5,26.68623796622086,,0.4321999999999999,0.2942,21.2,2.8000000000000007,,3.680000000000021,26.68623796622086,0.5824175824175825,1.3773584905660377,0.8021978021978022,8.11111111111111,7,1,1,0,1,29,25.867266701651655
+Jayson Tatum,1628369,2024-11-04,1610612738,1610612737,0,30.0,32.0,3.2,3.0,37.4,9.055385138137416,3.312942123712851,2,0,119.56,0.6843999999999999,119.78000000000002,0.4974,96.63,103.49,100.06,0.5464,0.4936,111.5,112.3,27.46985389517663,,0.4356,0.2618,20.2,-1.0,,-7.259999999999991,27.46985389517663,0.5401069518716578,1.4851485148514851,0.8021390374331551,9.375,-8,1,0,1,1,28,25.986841141616374
+Jayson Tatum,1628369,2024-11-06,1610612738,1610612744,1,28.2,29.0,3.2,3.0,35.8,8.167006795638168,3.452913187966141,2,0,107.12,0.6656000000000001,117.9,0.5025999999999999,96.63,99.46,98.045,0.5589999999999999,0.4906,115.3,104.4,28.91118872584811,,0.4384,0.2552,19.2,-0.1999999999999993,,-2.719999999999999,28.91118872584811,0.5363128491620112,1.46875,0.7877094972067039,8.8125,13,1,1,0,1,32,24.807545094539257
+Jayson Tatum,1628369,2024-11-08,1610612738,1610612751,1,31.6,32.0,4.0,5.0,36.0,3.507135583350036,9.01017629550912,2,0,115.26,0.7054,117.68000000000002,0.4997999999999999,96.63,96.78,96.705,0.5631999999999999,0.4521999999999999,114.0,105.3,30.25477942294517,,0.4634,0.3302,20.0,0.3999999999999986,,-9.959999999999994,30.25477942294517,0.5555555555555556,1.58,0.8777777777777778,7.9,-5,1,0,1,1,33,26.266011164870775
+Jayson Tatum,1628369,2024-11-10,1610612738,1610612749,0,30.8,32.0,4.0,5.0,35.8,2.16794833886788,14.206915072032212,2,0,115.28,0.5134000000000001,116.5,0.4946,96.63,99.93,98.28,0.5766,0.4896,100.6,120.4,29.50612315039254,,0.4714,0.3516,20.0,2.1999999999999997,,5.1200000000000045,29.50612315039254,0.558659217877095,1.54,0.8603351955307263,7.7,1,1,1,0,1,31,25.92074723962218
+Jayson Tatum,1628369,2024-11-12,1610612738,1610612737,1,30.6,31.0,4.2,5.0,36.6,2.0736441353327724,14.756559195967087,2,0,116.34,0.6658,114.5,0.4998,96.63,103.49,100.06,0.6284,0.5046,110.9,116.7,29.075421501159823,,0.4432,0.3516,20.4,0.3999999999999986,,0.3599999999999994,29.075421501159823,0.5573770491803278,1.5000000000000002,0.8360655737704918,7.285714285714286,2,1,1,0,1,20,25.905277389619954
+Jayson Tatum,1628369,2024-11-13,1610612738,1610612751,0,28.8,31.0,4.4,5.0,37.2,5.263078946776307,5.472071684754687,1,1,110.98,0.6577999999999999,114.64,0.4722,96.63,96.78,96.705,0.6479999999999999,0.4800000000000001,115.0,109.1,28.684271269885706,,0.4124,0.3738,20.6,-8.8,,-1.8799999999999957,28.684271269885706,0.553763440860215,1.3980582524271843,0.7741935483870968,6.545454545454545,-8,1,0,1,1,36,25.069354563383467
+Jayson Tatum,1628369,2024-11-16,1610612738,1610612761,1,30.4,32.0,4.2,5.0,38.2,6.107372593840988,4.977582382125036,3,0,113.48,0.6402,119.88000000000002,0.489,96.63,100.54,98.585,0.6754,0.4974,139.6,95.4,29.654855923449517,,0.4436,0.4545999999999999,20.2,5.600000000000001,,-18.079999999999984,29.654855923449517,0.5287958115183246,1.504950495049505,0.7958115183246073,7.238095238095237,4,1,1,0,1,24,25.729967336873763
