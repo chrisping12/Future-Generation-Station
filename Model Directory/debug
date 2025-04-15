@@ -1,53 +1,94 @@
-as you could see no columns on my predictions_with_pysr.csv were nan.. but The plots are blank and these error can up again. 
+Yes — that helps a lot!
 
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=x, y=y, **kwargs)
-Pairplot saved to: decision_boundaries/pairplot_top_features.png
+Since your CSV has:
+	•	'PTS' → actual points scored
+	•	'pysr_prediction' → prediction from symbolic regression
+
+You have two great ways to color the pairplot (choose one or both):
+
+⸻
+
+Option 1: Classification Hue Based on Actual Points Scored
+
+Use this if you want to color based on whether they scored 25+:
+
+df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
+
+
+
+⸻
+
+Option 2: Classification Hue Based on PySR Prediction
+
+Use this if you want to color based on predicted points instead:
+
+df['Pred_25_plus'] = (df['pysr_prediction'] >= 25).astype(int)
+
+
+
+⸻
+
+Example: Pairplot with BOTH Versions
+
+Here’s a drop-in script that plots both versions and saves them side by side:
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+
+# Load data
+df = pd.read_csv('predictions_with_pysr.csv')
+
+# Create both classification targets
+df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
+df['Pred_25_plus'] = (df['pysr_prediction'] >= 25).astype(int)
+
+# Choose top 5 features
+top_features = [
+    'rolling_pts_avg_5G',
+    'rolling_3pm_avg_5G',
+    'rolling_usg_pct_5G',
+    'pts_trend_slope_5G',
+    'shots_per_min'
+]
+
+# Prepare folder
+os.makedirs('decision_boundaries', exist_ok=True)
+
+# Function to generate and save pairplot
+def generate_pairplot(hue_col, title_suffix):
+    plot_df = df[top_features + [hue_col]].dropna()
+    plot_df[hue_col] = plot_df[hue_col].astype(int)
+    
+    print(f"[INFO] Plotting with hue = {hue_col}, Shape = {plot_df.shape}, Unique = {plot_df[hue_col].unique()}")
+    
+    sns.set(style='darkgrid')
+    plot = sns.pairplot(
+        plot_df,
+        hue=hue_col,
+        palette='coolwarm',
+        diag_kind='kde',
+        plot_kws={'alpha': 0.6}
+    )
+    plot.fig.suptitle(f'Pairplot of Top 5 Features ({title_suffix})', y=1.02)
+    plot.savefig(f'decision_boundaries/pairplot_{hue_col}.png')
+    plt.close()
+
+# Generate both
+generate_pairplot('PTS_25_plus', 'Actual 25+ PTS')
+generate_pairplot('Pred_25_plus', 'Predicted 25+ PTS')
+
+print("[✓] Saved both pairplots to: decision_boundaries/")
+
+
+
+⸻
+
+Output:
+	•	pairplot_PTS_25_plus.png → Colored by actual 25+ points
+	•	pairplot_Pred_25_plus.png → Colored by PySR prediction >= 25
+
+⸻
+
+Want to include both as subplots in a single figure? I can set that up next. Or we can animate time-series transitions through games. Let me know what helps you best interpret model performance.
