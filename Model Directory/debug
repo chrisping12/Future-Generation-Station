@@ -1,2 +1,97 @@
-C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
-  func(x=vector, **plot_kwargs)
+Thanks for catching that — blank Seaborn pairplot outputs usually happen because of one of these issues:
+
+Most Common Causes of Blank PairPlots
+	1.	All rows in plot_df are dropped due to dropna()
+→ This leaves an empty DataFrame, so Seaborn has nothing to plot.
+	2.	One or more of your top 5 feature columns are completely NaN or non-numeric
+→ This silently breaks plotting.
+	3.	Matplotlib backend issue (less common in script, more in notebook)
+→ You’d still get axes, but no points.
+
+⸻
+
+Fix: Debug with Safe Checkpoint
+
+Here’s an updated version that:
+	•	Prints plot_df.shape after dropna()
+	•	Warns if it’s empty
+	•	Checks for object or non-numeric columns
+
+Drop-in version below:
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+
+# Load CSV
+df = pd.read_csv('predictions_with_pysr.csv')
+
+# Classification target: Did player score 25+ points?
+df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
+
+# Choose top 5 features
+top_features = [
+    'rolling_pts_avg_5G',
+    'rolling_3pm_avg_5G',
+    'rolling_usg_pct_5G',
+    'pts_trend_slope_5G',
+    'shots_per_min'
+]
+
+# Check data types
+print("\nFeature Data Types:")
+print(df[top_features].dtypes)
+
+# Check for nulls
+print("\nNulls per Column:")
+print(df[top_features].isnull().sum())
+
+# Create filtered DataFrame
+plot_df = df[top_features + ['PTS_25_plus']].dropna()
+
+# Print shape to confirm non-empty
+print(f"\nFiltered DataFrame shape: {plot_df.shape}")
+if plot_df.empty:
+    raise ValueError("Filtered DataFrame is empty. Check for missing values in your top features.")
+
+# Confirm only numeric dtypes
+non_numeric_cols = plot_df.select_dtypes(exclude=['number']).columns.tolist()
+if non_numeric_cols:
+    raise TypeError(f"These columns are not numeric: {non_numeric_cols}. Fix dtypes before plotting.")
+
+# Plot
+sns.set(style='darkgrid')
+pairplot = sns.pairplot(
+    plot_df,
+    hue='PTS_25_plus',
+    palette='coolwarm',
+    diag_kind='kde',
+    plot_kws={'alpha': 0.6}
+)
+
+# Save
+output_path = 'decision_boundaries/pairplot_top_features.png'
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+pairplot.fig.suptitle('Pairplot of Top 5 Features (25+ PTS Classification)', y=1.02)
+pairplot.savefig(output_path)
+plt.close()
+
+print(f"\nPairplot saved to: {output_path}")
+
+
+
+⸻
+
+Next Step:
+
+Run this and share:
+	•	What does it print under plot_df.shape?
+	•	Are any of the top 5 features listed as object or showing high null counts?
+
+If needed, I can also:
+	•	Cast dtypes safely (e.g., pd.to_numeric(errors='coerce'))
+	•	Impute missing values
+	•	Suggest better features based on availability
+
+Want me to patch that automatically if your features contain strings or missing values?
