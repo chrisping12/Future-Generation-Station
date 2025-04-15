@@ -1,56 +1,112 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.inspection import DecisionBoundaryDisplay
-from itertools import combinations
-
-# Load and label
-df = pd.read_csv('predictions_with_pysr.csv')
-df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-
-# Define the pairs to visualize (manually or auto from top features)
-interesting_pairs = [
-    ('rolling_pts_avg_5G', 'rolling_usg_pct_5G'),
-    ('shots_per_min', 'pts_per_min'),
-    ('rolling_3pm_avg_5G', 'pts_to_3pm_ratio')
-]
-
-output_dir = 'decision_boundaries'
-os.makedirs(output_dir, exist_ok=True)
-
-for i, (feat1, feat2) in enumerate(interesting_pairs):
-    print(f"[{i+1}] Plotting {feat1} vs {feat2}...")
-
-    # Drop missing and extract clean set
-    sub_df = df[[feat1, feat2, 'PTS_25_plus']].dropna()
-    X = sub_df[[feat1, feat2]].values
-    y = sub_df['PTS_25_plus'].values
-
-    # Normalize for clean decision boundaries
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    # Fit a simple classifier
-    clf = LogisticRegression()
-    clf.fit(X_scaled, y)
-
-    # Plot decision boundary
-    disp = DecisionBoundaryDisplay.from_estimator(
-        clf,
-        X_scaled,
-        response_method="predict",
-        xlabel=feat1,
-        ylabel=feat2,
-        alpha=0.4
-    )
-    scatter = disp.ax_.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, cmap='coolwarm', edgecolor='k', s=25)
-    disp.ax_.set_title(f"{feat1} vs {feat2} | 25+ PTS Boundary")
-
-    # Save plot
-    plot_path = os.path.join(output_dir, f'decision_boundary_{feat1}_vs_{feat2}.png')
+[INFO] Plotting with hue = PTS_25_plus, Shape = (0, 6), Unique = []
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+[INFO] Plotting with hue = Pred_25_plus, Shape = (0, 6), Unique = []
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1513: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=vector, **plot_kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\site-packages\seaborn\axisgrid.py:1615: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+  func(x=x, y=y, **kwargs)
+Traceback (most recent call last):
+  File "c:\Users\chrism\Documents\My Stuff\Code\Predictions\Future-Generation-Station-main\Model Directory\7_Decision Boundary Pairplot.py", line 48, in <module>
+    print("[\u2713] Saved both pairplots to: decision_boundaries/")
+  File "C:\Users\chrism\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 1: character maps to <undefined>
     plt.savefig(plot_path)
     plt.close()
 
