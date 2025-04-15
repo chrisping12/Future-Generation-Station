@@ -1,102 +1,102 @@
-Great question — and once you see a decision boundary, it really clicks. Let’s break it down visually and conceptually.
+Perfect — thanks for grounding this. Based on everything you’ve said, here’s a clean, production-ready Python script that:
+	•	Loads your predictions_with_pysr.csv
+	•	Uses rolling_pts_avg_5G and rolling_min_avg_5G
+	•	Classifies whether PTS >= 25 or not
+	•	Trains a LogisticRegression model
+	•	Plots a real decision boundary
+	•	Overlays your real data points
+	•	Saves the figure to file (no pop-ups, no notebook needed)
 
 ⸻
 
-What is a Decision Boundary?
+File: plot_decision_boundary.py
 
-At its core:
-
-A decision boundary is the line (in 2D), curve, or surface (in higher dimensions) that separates different classes in your feature space.
-
-It’s what your model learns.
-
-In a binary classification task:
-	•	The model says: “Everything on this side → Class 0, and everything over here → Class 1”
-	•	For logistic regression, the decision boundary is linear — a straight line or hyperplane
-	•	For nonlinear models (like random forest, SVM, or neural nets), it can bend, twist, and adapt
-
-⸻
-
-How It Works in Logistic Regression
-
-Logistic regression models:
-
-P(class=1) = sigmoid(w1*x1 + w2*x2 + ... + b)
-
-The decision boundary is defined by:
-
-w1*x1 + w2*x2 + ... + b = 0
-
-That’s the threshold where the model thinks P(class=1) = 0.5.
-
-Everything:
-	•	Above the line → P > 0.5 → predict class 1
-	•	Below the line → P < 0.5 → predict class 0
-
-⸻
-
-Visual Example (2 Features)
-
-Let’s say we pick two features:
-	•	rolling_pts_avg_5G
-	•	rolling_min_avg_5G
-
-We can plot:
-	•	Each player-game as a point
-	•	The color = true class (hit 10+ points or not)
-	•	The model’s decision boundary across the space
-
-⸻
-
-Want to Try It?
-
-If you run this in a Jupyter Notebook, it’ll show you the boundary:
-
-import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import os
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-# Pick two features
-X = features_df[['rolling_pts_avg_5G', 'rolling_min_avg_5G']].dropna()
-y = features_df.loc[X.index, 'hit_10pts']
+# Load dataset
+df = pd.read_csv('predictions_with_pysr.csv')
 
-# Scale the data
+# Define features and classification target
+feat_x = 'rolling_pts_avg_5G'
+feat_y = 'rolling_min_avg_5G'
+target_col = 'PTS_25_plus'
+
+# Define binary classification target (25+ points)
+df[target_col] = (df['PTS'] >= 25).astype(int)
+
+# Drop rows where inputs are missing
+df_subset = df[[feat_x, feat_y, target_col]].dropna()
+
+# Extract features and labels
+X = df_subset[[feat_x, feat_y]].values
+y = df_subset[target_col].values
+
+# Scale features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Fit the model
+# Train logistic regression model
 clf = LogisticRegression()
 clf.fit(X_scaled, y)
 
-# Plotting
+# Create mesh grid for contour plot
 x_min, x_max = X_scaled[:, 0].min() - 1, X_scaled[:, 0].max() + 1
 y_min, y_max = X_scaled[:, 1].min() - 1, X_scaled[:, 1].max() + 1
 xx, yy = np.meshgrid(np.linspace(x_min, x_max, 300),
                      np.linspace(y_min, y_max, 300))
-Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
+grid = np.c_[xx.ravel(), yy.ravel()]
+Z = clf.predict(grid).reshape(xx.shape)
 
+# Plot
 plt.figure(figsize=(10, 6))
 plt.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')
 plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, edgecolors='k', cmap='coolwarm', s=60)
-plt.xlabel('rolling_pts_avg_5G (scaled)')
-plt.ylabel('rolling_min_avg_5G (scaled)')
+plt.xlabel(f'{feat_x} (scaled)')
+plt.ylabel(f'{feat_y} (scaled)')
 plt.title('Logistic Regression Decision Boundary')
 plt.grid(True)
-plt.show()
+
+# Save output
+output_dir = 'decision_boundaries'
+os.makedirs(output_dir, exist_ok=True)
+output_file = os.path.join(output_dir, f'decision_boundary_{feat_x}_vs_{feat_y}.png')
+plt.savefig(output_file)
+plt.close()
+
+print(f"[✓] Decision boundary plot saved to: {output_file}")
 
 
 
 ⸻
 
-Want to Go Further?
+To Run:
 
-If you’d like to:
-	•	Compare this with a random forest or SVM decision boundary
-	•	Try different feature pairs
-	•	Add model confidence shading
+Just place this .py file in the same directory as your predictions_with_pysr.csv and run:
 
-I can build you a flexible notebook template to play with.
+python plot_decision_boundary.py
 
-Want me to do that?
+
+
+⸻
+
+Customization Options:
+	•	To change the threshold (e.g. 20+ points), modify:
+
+df[target_col] = (df['PTS'] >= 20).astype(int)
+
+
+	•	To plot different features, change:
+
+feat_x = 'shots_per_min'
+feat_y = 'pts_per_min'
+
+
+
+⸻
+
+Would you like me to upgrade this into a loop that goes through all 2-feature combos from a top-ranked list (e.g., by correlation or MI score) and generates one decision plot per pair? I can drop that in next.
