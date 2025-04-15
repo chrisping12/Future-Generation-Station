@@ -1,94 +1,57 @@
-Yes — that helps a lot!
-
-Since your CSV has:
-	•	'PTS' → actual points scored
-	•	'pysr_prediction' → prediction from symbolic regression
-
-You have two great ways to color the pairplot (choose one or both):
-
-⸻
-
-Option 1: Classification Hue Based on Actual Points Scored
-
-Use this if you want to color based on whether they scored 25+:
-
-df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-
-
-
-⸻
-
-Option 2: Classification Hue Based on PySR Prediction
-
-Use this if you want to color based on predicted points instead:
-
-df['Pred_25_plus'] = (df['pysr_prediction'] >= 25).astype(int)
-
-
-
-⸻
-
-Example: Pairplot with BOTH Versions
-
-Here’s a drop-in script that plots both versions and saves them side by side:
-
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 import os
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.inspection import DecisionBoundaryDisplay
+from itertools import combinations
 
-# Load data
+# Load and label
 df = pd.read_csv('predictions_with_pysr.csv')
-
-# Create both classification targets
 df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-df['Pred_25_plus'] = (df['pysr_prediction'] >= 25).astype(int)
 
-# Choose top 5 features
-top_features = [
-    'rolling_pts_avg_5G',
-    'rolling_3pm_avg_5G',
-    'rolling_usg_pct_5G',
-    'pts_trend_slope_5G',
-    'shots_per_min'
+# Define the pairs to visualize (manually or auto from top features)
+interesting_pairs = [
+    ('rolling_pts_avg_5G', 'rolling_usg_pct_5G'),
+    ('shots_per_min', 'pts_per_min'),
+    ('rolling_3pm_avg_5G', 'pts_to_3pm_ratio')
 ]
 
-# Prepare folder
-os.makedirs('decision_boundaries', exist_ok=True)
+output_dir = 'decision_boundaries'
+os.makedirs(output_dir, exist_ok=True)
 
-# Function to generate and save pairplot
-def generate_pairplot(hue_col, title_suffix):
-    plot_df = df[top_features + [hue_col]].dropna()
-    plot_df[hue_col] = plot_df[hue_col].astype(int)
-    
-    print(f"[INFO] Plotting with hue = {hue_col}, Shape = {plot_df.shape}, Unique = {plot_df[hue_col].unique()}")
-    
-    sns.set(style='darkgrid')
-    plot = sns.pairplot(
-        plot_df,
-        hue=hue_col,
-        palette='coolwarm',
-        diag_kind='kde',
-        plot_kws={'alpha': 0.6}
+for i, (feat1, feat2) in enumerate(interesting_pairs):
+    print(f"[{i+1}] Plotting {feat1} vs {feat2}...")
+
+    # Drop missing and extract clean set
+    sub_df = df[[feat1, feat2, 'PTS_25_plus']].dropna()
+    X = sub_df[[feat1, feat2]].values
+    y = sub_df['PTS_25_plus'].values
+
+    # Normalize for clean decision boundaries
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Fit a simple classifier
+    clf = LogisticRegression()
+    clf.fit(X_scaled, y)
+
+    # Plot decision boundary
+    disp = DecisionBoundaryDisplay.from_estimator(
+        clf,
+        X_scaled,
+        response_method="predict",
+        xlabel=feat1,
+        ylabel=feat2,
+        alpha=0.4
     )
-    plot.fig.suptitle(f'Pairplot of Top 5 Features ({title_suffix})', y=1.02)
-    plot.savefig(f'decision_boundaries/pairplot_{hue_col}.png')
+    scatter = disp.ax_.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, cmap='coolwarm', edgecolor='k', s=25)
+    disp.ax_.set_title(f"{feat1} vs {feat2} | 25+ PTS Boundary")
+
+    # Save plot
+    plot_path = os.path.join(output_dir, f'decision_boundary_{feat1}_vs_{feat2}.png')
+    plt.savefig(plot_path)
     plt.close()
 
-# Generate both
-generate_pairplot('PTS_25_plus', 'Actual 25+ PTS')
-generate_pairplot('Pred_25_plus', 'Predicted 25+ PTS')
-
-print("[✓] Saved both pairplots to: decision_boundaries/")
-
-
-
-⸻
-
-Output:
-	•	pairplot_PTS_25_plus.png → Colored by actual 25+ points
-	•	pairplot_Pred_25_plus.png → Colored by PySR prediction >= 25
-
-⸻
-
-Want to include both as subplots in a single figure? I can set that up next. Or we can animate time-series transitions through games. Let me know what helps you best interpret model performance.
+print(f"\n[✓] All decision boundary plots saved to: {output_dir}")
