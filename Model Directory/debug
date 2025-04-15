@@ -1,81 +1,102 @@
-Thanks — we’re getting closer, and your debug output reveals two separate but clear issues:
+Great question — and once you see a decision boundary, it really clicks. Let’s break it down visually and conceptually.
 
 ⸻
 
-1. Critical Issue: plot_df Shape = (0, 6)
+What is a Decision Boundary?
 
-Your pairplot DataFrame is empty, which means no rows survived dropna(). That’s why:
+At its core:
 
-Ignoring palette because no hue variable has been assigned.
+A decision boundary is the line (in 2D), curve, or surface (in higher dimensions) that separates different classes in your feature space.
 
-Even though you said no NaNs are in your .csv, some specific columns in your top 5 features must contain NaNs in some rows — just enough to result in zero valid rows when combined.
+It’s what your model learns.
 
-⸻
-
-✅ Fix 1: Check NaNs Across Selected Columns
-
-Here’s a quick diagnostic you can run to find the issue:
-
-top_features = [
-    'rolling_pts_avg_5G',
-    'rolling_3pm_avg_5G',
-    'rolling_usg_pct_5G',
-    'pts_trend_slope_5G',
-    'shots_per_min'
-]
-
-# Check which rows are getting dropped
-required_cols = top_features + ['PTS_25_plus']
-df = pd.read_csv('predictions_with_pysr.csv')
-df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-
-# Count NaNs in each required column
-print("\nNulls per column:")
-print(df[required_cols].isnull().sum())
-
-# Show how many full rows are valid
-valid_rows = df[required_cols].dropna()
-print(f"\nValid rows after dropna(): {valid_rows.shape[0]}")
-
-If you see even 1 column with lots of NaNs, we can fix it by:
-	•	Imputing missing values (e.g., fillna)
-	•	Choosing a different top-5 combo
-	•	Or using df.dropna(subset=...) with fewer features
+In a binary classification task:
+	•	The model says: “Everything on this side → Class 0, and everything over here → Class 1”
+	•	For logistic regression, the decision boundary is linear — a straight line or hyperplane
+	•	For nonlinear models (like random forest, SVM, or neural nets), it can bend, twist, and adapt
 
 ⸻
 
-2. Minor Issue: UnicodeEncodeError from the checkmark ✓
+How It Works in Logistic Regression
 
-Windows terminal doesn’t support \u2713 (✓) using the default cp1252 encoding.
+Logistic regression models:
 
-✅ Fix 2: Replace with plain text or change encoding
+P(class=1) = sigmoid(w1*x1 + w2*x2 + ... + b)
 
-Just change this line:
+The decision boundary is defined by:
 
-print(f"\n[✓] All decision boundary plots saved to: {output_dir}")
+w1*x1 + w2*x2 + ... + b = 0
 
-To:
+That’s the threshold where the model thinks P(class=1) = 0.5.
 
-print(f"\nAll decision boundary plots saved to: {output_dir}")
+Everything:
+	•	Above the line → P > 0.5 → predict class 1
+	•	Below the line → P < 0.5 → predict class 0
+
+⸻
+
+Visual Example (2 Features)
+
+Let’s say we pick two features:
+	•	rolling_pts_avg_5G
+	•	rolling_min_avg_5G
+
+We can plot:
+	•	Each player-game as a point
+	•	The color = true class (hit 10+ points or not)
+	•	The model’s decision boundary across the space
+
+⸻
+
+Want to Try It?
+
+If you run this in a Jupyter Notebook, it’ll show you the boundary:
+
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+
+# Pick two features
+X = features_df[['rolling_pts_avg_5G', 'rolling_min_avg_5G']].dropna()
+y = features_df.loc[X.index, 'hit_10pts']
+
+# Scale the data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Fit the model
+clf = LogisticRegression()
+clf.fit(X_scaled, y)
+
+# Plotting
+x_min, x_max = X_scaled[:, 0].min() - 1, X_scaled[:, 0].max() + 1
+y_min, y_max = X_scaled[:, 1].min() - 1, X_scaled[:, 1].max() + 1
+xx, yy = np.meshgrid(np.linspace(x_min, x_max, 300),
+                     np.linspace(y_min, y_max, 300))
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.figure(figsize=(10, 6))
+plt.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=y, edgecolors='k', cmap='coolwarm', s=60)
+plt.xlabel('rolling_pts_avg_5G (scaled)')
+plt.ylabel('rolling_min_avg_5G (scaled)')
+plt.title('Logistic Regression Decision Boundary')
+plt.grid(True)
+plt.show()
 
 
 
 ⸻
 
-✅ Final Fix Suggestion
+Want to Go Further?
 
-Once you confirm which features have NaNs, either:
-	•	Replace the NaN columns with better features
-	•	Or allow filling like this:
+If you’d like to:
+	•	Compare this with a random forest or SVM decision boundary
+	•	Try different feature pairs
+	•	Add model confidence shading
 
-plot_df = df[required_cols].fillna(method='ffill')  # or .fillna(0)
+I can build you a flexible notebook template to play with.
 
-
-
-⸻
-
-Would you like me to help automatically:
-	•	Rank the top features with the fewest missing values?
-	•	Or generate a smart list of feature pairs that are fully populated and ready to plot?
-
-Let’s get your first real decision boundary plot rendering clean.
+Want me to do that?
