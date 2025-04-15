@@ -1,0 +1,62 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+
+# Load your data
+df = pd.read_csv('predictions_with_pysr.csv')
+
+# Target column
+df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
+
+# Candidate features you were originally using
+candidate_features = [
+    'rolling_pts_avg_5G',
+    'rolling_3pm_avg_5G',
+    #'rolling_usg_pct_5G',
+    'pts_trend_slope_5G',
+    'shots_per_min',
+    'pts_per_min',
+    'pts_to_3pm_ratio',
+    'rolling_fg_pct_5G',
+    'rolling_fga_5G',
+    'high_efficiency'
+]
+
+# Print nulls per column
+print("\n[!] Checking for missing values:")
+nulls = df[candidate_features].isnull().sum()
+print(nulls)
+
+# Remove columns that are fully NaN
+valid_features = [col for col in candidate_features if df[col].notnull().sum() > 0]
+print(f"\n Valid features available for plotting: {valid_features}")
+
+# Final DataFrame for pairplot
+plot_df = df[valid_features + ['PTS_25_plus']].dropna()
+print(f"[i] Shape after dropna(): {plot_df.shape}")
+if plot_df.empty:
+    raise ValueError("Still no valid rows left to plot. Choose features with better data coverage.")
+
+# Ensure hue is correct type
+plot_df['PTS_25_plus'] = plot_df['PTS_25_plus'].astype(int)
+
+# Plot
+sns.set(style='darkgrid')
+pairplot = sns.pairplot(
+    plot_df,
+    hue='PTS_25_plus',
+    palette='coolwarm',
+    diag_kind='kde',
+    plot_kws={'alpha': 0.6, 'edgecolor': 'k'}
+)
+
+# Save it
+output_dir = 'decision_boundaries'
+os.makedirs(output_dir, exist_ok=True)
+out_path = os.path.join(output_dir, 'pairplot_core_features_cleaned.png')
+pairplot.fig.suptitle('Pairplot of Clean Features (25+ PTS Classification)', y=1.02)
+pairplot.savefig(out_path)
+plt.close()
+
+print(f"\n Cleaned pairplot saved to: {out_path}")
