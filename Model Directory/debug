@@ -1,62 +1,55 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
+Looking at these results and the features_df none of the 'USG_PCT' are turning out correctly.  
 
-# Load your data
-df = pd.read_csv('predictions_with_pysr.csv')
-
-# Target column
-df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-
-# Candidate features you were originally using
-candidate_features = [
-    'rolling_pts_avg_5G',
-    'rolling_3pm_avg_5G',
-    'rolling_usg_pct_5G',
-    'pts_trend_slope_5G',
-    'shots_per_min',
-    'pts_per_min',
-    'pts_to_3pm_ratio',
-    'rolling_fg_pct_5G',
-    'rolling_fga_5G',
-    'high_efficiency'
-]
-
-# Print nulls per column
-print("\n[!] Checking for missing values:")
-nulls = df[candidate_features].isnull().sum()
-print(nulls)
-
-# Remove columns that are fully NaN
-valid_features = [col for col in candidate_features if df[col].notnull().sum() > 0]
-print(f"\n[✓] Valid features available for plotting: {valid_features}")
-
-# Final DataFrame for pairplot
-plot_df = df[valid_features + ['PTS_25_plus']].dropna()
-print(f"[i] Shape after dropna(): {plot_df.shape}")
-if plot_df.empty:
-    raise ValueError("Still no valid rows left to plot. Choose features with better data coverage.")
-
-# Ensure hue is correct type
-plot_df['PTS_25_plus'] = plot_df['PTS_25_plus'].astype(int)
-
-# Plot
-sns.set(style='darkgrid')
-pairplot = sns.pairplot(
-    plot_df,
-    hue='PTS_25_plus',
-    palette='coolwarm',
-    diag_kind='kde',
-    plot_kws={'alpha': 0.6, 'edgecolor': 'k'}
-)
-
-# Save it
-output_dir = 'decision_boundaries'
-os.makedirs(output_dir, exist_ok=True)
-out_path = os.path.join(output_dir, 'pairplot_core_features_cleaned.png')
-pairplot.fig.suptitle('Pairplot of Clean Features (25+ PTS Classification)', y=1.02)
-pairplot.savefig(out_path)
-plt.close()
-
-print(f"\n[✓] Cleaned pairplot saved to: {out_path}")
+--- Correlation with: hit_10pts ---
+rolling_pts_avg_5G             -> Corr: 0.5105 (p=0.0000)
+rolling_pts_median_5G          -> Corr: 0.4935 (p=0.0000)
+rolling_3pm_avg_5G             -> Corr: 0.2516 (p=0.0000)
+rolling_3pm_median_5G          -> Corr: 0.2318 (p=0.0000)
+rolling_min_avg_5G             -> Corr: 0.5389 (p=0.0000)
+rolling_std_pts_5G             -> Corr: 0.2085 (p=0.0000)
+pts_consistency_score          -> Corr: 0.2205 (p=0.0000)
+rolling_opp_def_rating_5G      -> Corr: -0.0008 (p=0.9831)
+rolling_opp_ast_pct_5G         -> Corr: -0.0551 (p=0.1272)
+rolling_team_off_rating_5G     -> Corr: 0.0328 (p=0.3633)
+rolling_team_reb_pct_5G        -> Corr: 0.0139 (p=0.6997)
+rolling_team_ast_pct_5G        -> Corr: 0.0127 (p=0.7242)
+rolling_opp_reb_pct_5G         -> Corr: 0.0609 (p=0.0913)
+latest_team_e_off_rating       -> Corr: 0.0281 (p=0.4363)
+latest_opp_e_def_rating        -> Corr: -0.0012 (p=0.9734)
+adjusted_pts_proj_def          -> Corr: 0.5105 (p=0.0000)
+rolling_usg_pct_5G             -> Corr: nan (p=nan)
+rolling_fg_pct_5G              -> Corr: 0.4145 (p=0.0000)
+rolling_fg3_pct_5G             -> Corr: 0.1697 (p=0.0000)
+rolling_fga_5G                 -> Corr: 0.4586 (p=0.0000)
+delta_pts_vs_rolling           -> Corr: -0.0026 (p=0.9432)
+delta_min_vs_rolling           -> Corr: -0.0195 (p=0.5896)
+opp_def_trend_delta            -> Corr: -0.0025 (p=0.9445)
+adjusted_pts_proj_usg          -> Corr: 0.5105 (p=0.0000)
+rest_days                      -> Corr: -0.0300 (p=0.4061)
+is_b2b                         -> Corr: -0.0060 (p=0.8685)
+team_pace                      -> Corr: -0.0316 (p=0.3818)
+opp_pace                       -> Corr: 0.0416 (p=0.2492)
+shots_per_min                  -> Corr: 0.3218 (p=0.0000)
+pts_per_fga                    -> Corr: 0.4453 (p=0.0000)
+pts_per_min                    -> Corr: 0.4309 (p=0.0000)
+pts_to_3pm_ratio               -> Corr: 0.1872 (p=0.0000)
+pts_trend_slope_5G             -> Corr: 0.0131 (p=0.7172)
+is_volume_shooter              -> Corr: 0.2644 (p=0.0000)
+is_trending_up                 -> Corr: -0.0258 (p=0.4756)
+is_trending_down               -> Corr: 0.0316 (p=0.3818)
+high_efficiency                -> Corr: 0.3830 (p=0.0000)
+rolling_ast_pct_5G             -> Corr: 0.1047 (p=0.0036)
+rolling_oreb_pct_5G            -> Corr: 0.0256 (p=0.4790)
+rolling_dreb_pct_5G            -> Corr: 0.2139 (p=0.0000)
+rolling_reb_pct_5G             -> Corr: 0.1869 (p=0.0000)
+ast_to_poss_ratio              -> Corr: -0.0968 (p=0.0072)
+usg_to_poss_ratio              -> Corr: nan (p=nan)
+engagement_index               -> Corr: nan (p=nan)
+volume_efficiency_ratio        -> Corr: nan (p=nan)
+starts_as_C                    -> Corr: nan (p=nan)
+starts_as_G                    -> Corr: nan (p=nan)
+starts_as_F                    -> Corr: nan (p=nan)
+is_starter                     -> Corr: nan (p=nan)
+HOME_AWAY                      -> Corr: 0.0022 (p=0.9504)
+fg_pct_vs_avg_delta            -> Corr: -0.1557 (p=0.0000)
+delta_fga_vs_rolling           -> Corr: -0.1365 (p=0.0001)
