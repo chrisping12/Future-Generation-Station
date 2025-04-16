@@ -33,5 +33,5 @@ def combine_chunks(data_type, num_chunks=4, season='2024-25'):
     print(f"[✓] Saved combined {data_type} data to: {output_path}")
 
 if __name__ == '__main__':
-    combine_chunks(data_type='team', num_chunks=4, season='2024-25')
-    combine_chunks(data_type='player', num_chunks=4, season='2024-25')
+    combine_chunks(data_type='team', num_chunks=7, season='2024-25')
+    combine_chunks(data_type='player', num_chunks=11, season='2024-25')

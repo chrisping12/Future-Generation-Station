@@ -15,11 +15,13 @@ def enrich_with_adv_player_stats(past_games):
     adv_df.columns = adv_df.columns.str.strip()
     past_games.columns = past_games.columns.str.strip()
 
+    #print(past_games.columns.tolist()),
+
     # Columns to pull in
     adv_columns = [
         'PLAYER_ID', 'GAME_DATE', 
         'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
-        'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']
+        'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'USG_PCT']
 
     # Inner join on PLAYER_ID and GAME_DATE
     enriched = pd.merge(
@@ -50,7 +52,7 @@ def enrich_current_game_with_adv_stats(current_game):
         (adv_df['PLAYER_ID'] == player_id) &
         (adv_df['GAME_DATE'] == game_date)
     ]
-    print(match.head())
+    #print(match.head())
     if match.empty:
         print(f"[!] No advanced stats found for PLAYER_ID {player_id} on {game_date.date()}")
         return current_game  # Return original, unmodified
