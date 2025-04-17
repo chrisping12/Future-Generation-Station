@@ -38,7 +38,6 @@ def get_latest_team_stat(team_id, current_game_date, stat_col):
 
     return df.iloc[-1][stat_col]
 
-
 def get_def_vs_avg_scale(opp_team_id, game_date, stat_col='TEAM_DEF_RATING'):
     """
     This is for opponent defense adjustment based on how much they hold players below their season average.

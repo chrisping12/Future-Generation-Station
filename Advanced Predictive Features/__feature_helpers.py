@@ -19,10 +19,13 @@ def enrich_with_adv_player_stats(past_games):
 
     # Columns to pull in
     adv_columns = [
-        'PLAYER_ID', 'GAME_DATE', 
-        'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
-        'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'USG_PCT']
-
+    'PLAYER_ID', 'GAME_DATE', 
+    'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
+    'TEAM_E_PACE', 'POSS', 'USG_PCT', 'START_POSITION',
+    'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'PTS_3', 'PTS_2', 'PTS_FT',
+    'LOOSE_BALLS_RECOVERED', 'SCREEN_ASSISTS','TCHS', 'PTS_FB'
+    ]
+    
     # Inner join on PLAYER_ID and GAME_DATE
     enriched = pd.merge(
         past_games,
