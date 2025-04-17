@@ -1,39 +1,30 @@
-I may see how we could run into some issues with these features and their definitions in _team_stat_helpers.py.
+Awesome — thanks for posting the full setup.
+You’re thinking 100% correctly: those get_team_rolling_avg() and get_latest_team_stat() calls can fail silently right now.
 
-Specifically I am talking about the rolling stats that have = " get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], _____)"
+They currently just return np.nan if anything goes wrong, and you only check for np.isnan() manually on a few, but not all.
 
-I Think these will fail silently.. I really want to get rolling_opp_blocks_5g, rolling_opp_steals_5g, rolling_opp_fouls_5g, to work using opp_team_id. Will they work as is? How can we ensure these work?
+⸻
 
-# Team-level rolling stats
-            rolling_opp_def_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_DEF_RATING')
-            rolling_opp_blocks_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_BLK')
-            rolling_opp_steals_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_STL')
-            rolling_opp_fouls_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_PF')
-            rolling_opp_ast_pct_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_AST_PCT')
-            if np.isnan(rolling_opp_ast_pct_5g):
-                rolling_opp_ast_pct_5g = np.nan
-            rolling_opp_reb_pct_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_REB_PCT')
-            if np.isnan(rolling_opp_reb_pct_5g):
-                rolling_opp_reb_pct_5g = np.nan
-            rolling_team_off_5g = get_team_rolling_avg(player_team_id, current_game['GAME_DATE'], 'TEAM_OFF_RATING')
-            rolling_team_ast_pct_5g = get_team_rolling_avg(player_team_id, current_game['GAME_DATE'], 'TEAM_AST_PCT')
-            rolling_team_reb_pct_5g = get_team_rolling_avg(player_team_id, current_game['GAME_DATE'], 'TEAM_REB_PCT')
-            latest_team_e_off_rating = get_latest_team_stat(player_team_id, current_game['GAME_DATE'], 'TEAM_E_OFF_RATING')
-            latest_opp_e_def_rating = get_latest_team_stat(opp_team_id, current_game['GAME_DATE'], 'TEAM_E_DEF_RATING')
-            if np.isnan(latest_opp_e_def_rating):
-                latest_opp_e_def_rating = np.nan
+Here’s exactly where you stand:
 
-import pandas as pd
-import numpy as np
-import glob
+✅ What’s working
+	•	You load _team_stats_df properly with load_team_stats()
+	•	get_team_rolling_avg() checks:
+	•	if column is missing → returns np.nan
+	•	if no games before current_game_date → returns np.nan
+	•	So technically it won’t crash, but it might silently give you a broken np.nan result without alerting you.
 
-_team_stats_df = None  # Global variable
+⸻
 
-def load_team_stats(filepath='merged_player_team_adv_stats_2024-25.csv'):
-    global _team_stats_df
-    _team_stats_df = pd.read_csv(filepath, parse_dates=['GAME_DATE'])
-    _team_stats_df.columns = _team_stats_df.columns.str.strip()  # Normalize
-    print(f"[✓] Loaded team stats with {len(_team_stats_df)} rows.")
+⚠️ What’s risky
+	•	Silent NaNs: If the stat column isn’t there (e.g., you forgot to pull TEAM_E_OFF_RATING) or if the team has fewer than 5 games logged, you get a NaN but no warning.
+	•	Hidden Bugs: If TEAM_ID doesn’t match due to formatting issues, you get an empty df → np.nan again with no explanation.
+
+⸻
+
+✅ Here’s how I’d strengthen it properly:
+
+1. Upgrade get_team_rolling_avg() to warn when fallback occurs
 
 def get_team_rolling_avg(team_id, current_game_date, stat_col, window=5):
     if _team_stats_df is None:
@@ -44,10 +35,21 @@ def get_team_rolling_avg(team_id, current_game_date, stat_col, window=5):
     df = df[df['GAME_DATE'] < pd.to_datetime(current_game_date)]
     df = df.sort_values('GAME_DATE')
 
-    if stat_col not in df.columns or df.empty:
+    if stat_col not in df.columns:
+        print(f"[WARN] Column '{stat_col}' not found in team stats.")
+        return np.nan
+
+    if df.empty:
+        print(f"[WARN] No games found for TEAM_ID {team_id} before {current_game_date}.")
         return np.nan
 
     return df[stat_col].tail(window).mean()
+
+
+
+⸻
+
+2. Upgrade get_latest_team_stat() the same way
 
 def get_latest_team_stat(team_id, current_game_date, stat_col):
     if _team_stats_df is None:
@@ -58,39 +60,60 @@ def get_latest_team_stat(team_id, current_game_date, stat_col):
     df = df[df['GAME_DATE'] < pd.to_datetime(current_game_date)]
     df = df.sort_values('GAME_DATE')
 
-    if stat_col not in df.columns or df.empty:
+    if stat_col not in df.columns:
+        print(f"[WARN] Column '{stat_col}' not found for team {team_id}.")
+        return np.nan
+
+    if df.empty:
+        print(f"[WARN] No games found for TEAM_ID {team_id} before {current_game_date}.")
         return np.nan
 
     return df.iloc[-1][stat_col]
 
-def get_def_vs_avg_scale(opp_team_id, game_date, stat_col='TEAM_DEF_RATING'):
-    """
-    This is for opponent defense adjustment based on how much they hold players below their season average.
-    Returns scale factor: league_avg_stat / opponent_recent_stat
-    Example: If opp_def_rating is low, this will return a multiplier < 1
-    """
-    if _team_stats_df is None:
-        raise RuntimeError("Team stats not loaded. Call load_team_stats() first.")
 
-    df = _team_stats_df.copy()
-    df = df[df['TEAM_ID'] == opp_team_id]
-    df = df[df['GAME_DATE'] < pd.to_datetime(game_date)]
-    df = df.sort_values('GAME_DATE')
 
-    if stat_col not in df.columns or len(df) < 5:
-        return 1.0  # Default scaling
+⸻
 
-    # Compare most recent value to 5-game average before it
-    last_val = df[stat_col].iloc[-1]
-    rolling_avg = df[stat_col].iloc[-6:-1].mean()
+✅ Even Better: Smart Fallback
 
-    if np.isnan(last_val) or np.isnan(rolling_avg) or rolling_avg == 0:
-        return 1.0
+You could even add:
+	•	If there are only 2-3 games, still average those games rather than strict 5.
+	•	Or, if latest stat missing, fallback to season average.
 
-    return last_val / rolling_avg
+That would look like:
 
-def get_team_stats_df():
-    global _team_stats_df
-    return _team_stats_df
+if len(df) < window:
+    return df[stat_col].mean()
+else:
+    return df[stat_col].tail(window).mean()
 
-load_team_stats("merged_player_team_adv_stats_2024-25.csv")
+
+
+⸻
+
+✅ Summary:
+
+Risk	Current Behavior	New Behavior with My Fixes
+Missing Columns	Silent np.nan	Warns [WARN] Column missing
+No Matching Games	Silent np.nan	Warns [WARN] No games for team
+Small Sample (<5)	Silent low count	Optionally average whatever is available
+Debugging	Hard	Much easier with warnings
+
+
+
+⸻
+
+✅ Implementation Plan
+
+If you add the [WARN] prints inside get_team_rolling_avg() and get_latest_team_stat() right now, you’ll catch 99% of hidden issues without changing any of your FeatureBuilder logic.
+
+You’ll just see a warning in the console while building features if anything goes wrong.
+
+⸻
+
+Want Even More?
+
+If you want a real-time “error map” (e.g., player-team-date → missing column) saved to a .csv for later review, we can build that too with almost no effort!
+
+Would you want me to show you that next?
+It’s SUPER handy once you’re running 300+ players at a time.
