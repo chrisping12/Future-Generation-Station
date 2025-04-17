@@ -2,7 +2,7 @@ I may see how we could run into some issues with these features and their defini
 
 Specifically I am talking about the rolling stats that have = " get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], _____)"
 
-I Think these will fail silently.. How can we ensure these work?
+I Think these will fail silently.. I really want to get rolling_opp_blocks_5g, rolling_opp_steals_5g, rolling_opp_fouls_5g, to work using opp_team_id. Will they work as is? How can we ensure these work?
 
 # Team-level rolling stats
             rolling_opp_def_5g = get_team_rolling_avg(opp_team_id, current_game['GAME_DATE'], 'TEAM_DEF_RATING')
