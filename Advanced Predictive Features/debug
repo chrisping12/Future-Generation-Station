@@ -1,79 +1,15 @@
-It has been fixed. 
+As you an see the starter info is still not coming through in the correlation and MI portion of the code. 
+Ive checked the features_df output and there are still 0 values inplace on any row inside the df. 
+Here is the code. 
 
-Please provide your assessment of the following. We have a great list of features. 
---- Correlation with: hit_15pts ---
-rolling_pts_avg_5G             -> Corr: 0.7895 (p=0.0000)
-rolling_pts_median_5G          -> Corr: 0.7602 (p=0.0000)
-rolling_3pm_avg_5G             -> Corr: 0.3827 (p=0.0000)
-rolling_3pm_median_5G          -> Corr: 0.3561 (p=0.0000)
-rolling_min_avg_5G             -> Corr: 0.3932 (p=0.0000)
-rolling_std_pts_5G             -> Corr: 0.2675 (p=0.0000)
-pts_consistency_score          -> Corr: 0.3099 (p=0.0000)
-rolling_opp_def_rating_5G      -> Corr: 0.0197 (p=0.5851)
-rolling_opp_ast_pct_5G         -> Corr: 0.0022 (p=0.9515)
-rolling_team_off_rating_5G     -> Corr: -0.0071 (p=0.8447)
-rolling_team_reb_pct_5G        -> Corr: -0.0325 (p=0.3679)
-rolling_team_ast_pct_5G        -> Corr: -0.0134 (p=0.7108)
-rolling_opp_reb_pct_5G         -> Corr: -0.0096 (p=0.7898)
-latest_team_e_off_rating       -> Corr: -0.0045 (p=0.9004)
-latest_opp_e_def_rating        -> Corr: 0.0177 (p=0.6242)
-adjusted_pts_proj_def          -> Corr: 0.7895 (p=0.0000)
-rolling_usg_pct_5G             -> Corr: 0.7155 (p=0.0000)
-rolling_fg_pct_5G              -> Corr: 0.3469 (p=0.0000)
-rolling_fg3_pct_5G             -> Corr: 0.2646 (p=0.0000)
-rolling_fga_5G                 -> Corr: 0.7331 (p=0.0000)
-delta_pts_vs_rolling           -> Corr: -0.0226 (p=0.5317)
-delta_min_vs_rolling           -> Corr: -0.0110 (p=0.7615)
-opp_def_trend_delta            -> Corr: -0.0083 (p=0.8190)
-adjusted_pts_proj_usg          -> Corr: 0.7895 (p=0.0000)
-rest_days                      -> Corr: 0.0176 (p=0.6258)
-is_b2b                         -> Corr: -0.0164 (p=0.6493)
-team_pace                      -> Corr: -0.0565 (p=0.1177)
-opp_pace                       -> Corr: 0.0066 (p=0.8548)
-shots_per_min                  -> Corr: 0.6955 (p=0.0000)
-pts_per_fga                    -> Corr: 0.4580 (p=0.0000)
-pts_per_min                    -> Corr: 0.7653 (p=0.0000)
-pts_to_3pm_ratio               -> Corr: 0.1725 (p=0.0000)
-pts_trend_slope_5G             -> Corr: -0.0004 (p=0.9919)
-is_volume_shooter              -> Corr: 0.5957 (p=0.0000)
-is_trending_up                 -> Corr: -0.0548 (p=0.1288)
-is_trending_down               -> Corr: 0.0456 (p=0.2062)
-high_efficiency                -> Corr: 0.4145 (p=0.0000)
-rolling_ast_pct_5G             -> Corr: 0.1563 (p=0.0000)
-rolling_oreb_pct_5G            -> Corr: -0.0045 (p=0.9000)
-rolling_dreb_pct_5G            -> Corr: 0.2346 (p=0.0000)
-rolling_reb_pct_5G             -> Corr: 0.1932 (p=0.0000)
-ast_to_poss_ratio              -> Corr: -0.0053 (p=0.8837)
-usg_to_poss_ratio              -> Corr: 0.5220 (p=0.0000)
-engagement_index               -> Corr: 0.4906 (p=0.0000)
-volume_efficiency_ratio        -> Corr: 0.7505 (p=0.0000)
+start_pos = str(current_game.get('START_POSITION', '')).strip().upper()
+is_valid_start = 1.0 if start_pos is ['C', 'F', 'G'] else 0.0
+
+
 starts_as_C                    -> Corr: nan (p=nan)
 starts_as_G                    -> Corr: nan (p=nan)
 starts_as_F                    -> Corr: nan (p=nan)
 is_starter                     -> Corr: nan (p=nan)
-HOME_AWAY                      -> Corr: -0.0022 (p=0.9514)
-fg_pct_vs_avg_delta            -> Corr: -0.1617 (p=0.0000)
-delta_fga_vs_rolling           -> Corr: -0.1254 (p=0.0005)
-rolling_pts_from_2_5g          -> Corr: 0.6107 (p=0.0000)
-rolling_pts_from_3_5g          -> Corr: 0.3833 (p=0.0000)
-rolling_pts_from_ft_5g         -> Corr: 0.5973 (p=0.0000)
-rolling_looseball_rec_5g       -> Corr: -0.0263 (p=0.4658)
-rolling_screen_ast_5g          -> Corr: 0.0881 (p=0.0146)
-touches_to_pts_ratio           -> Corr: 0.5945 (p=0.0000)
-transition_pts_pct             -> Corr: -0.2127 (p=0.0000)
-rolling_opp_blocks_5g          -> Corr: -0.0294 (p=0.4160)
-rolling_opp_steals_5g          -> Corr: -0.0109 (p=0.7638)
-rolling_opp_fouls_5g           -> Corr: -0.0142 (p=0.6951)
-
-But I can see the scores in the following have dropped from .99 and 1.0 to the below... 
-precision    recall  f1-score   support
-
-           0       0.94      0.98      0.96        63
-           1       0.99      0.97      0.98       130
-
-    accuracy                           0.97       193
-   macro avg       0.97      0.98      0.97       193
-weighted avg       0.97      0.97      0.97       193
 
 
 
