@@ -12,7 +12,7 @@ df = pd.read_csv('nba_player_features_rolling5G.csv')
 # Fill NaN values with column means
 df = df.fillna(df.mean(numeric_only=True))
 
-non_numeric_cols = ['PLAYER_NAME', 'GAME_DATE', 'rolling_usg_pct_5G', 'delta_min_vs_rolling']
+non_numeric_cols = ['PLAYER_NAME', 'GAME_DATE', ]# 'rolling_usg_pct_5G', 'delta_min_vs_rolling']
 df = df.drop(columns=non_numeric_cols)
 
 # Check data types of all columns

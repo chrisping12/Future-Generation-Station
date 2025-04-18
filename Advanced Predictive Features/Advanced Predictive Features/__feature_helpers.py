@@ -61,7 +61,7 @@ def enrich_current_game_with_adv_stats(current_game):
         return current_game  # Return original, unmodified
 
     # Add each matching stat to the row
-    for stat in ['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']:
+    for stat in ['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'START_POSITION']:
         if stat in match.columns:
             current_game[stat] = match[stat].values[0]
 
