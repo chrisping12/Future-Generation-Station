@@ -5,6 +5,12 @@ Here is the code.
 start_pos = str(current_game.get('START_POSITION', '')).strip().upper()
 is_valid_start = 1.0 if start_pos is ['C', 'F', 'G'] else 0.0
 
+I made sure it was included in feature_builders.py:
+
+# Add each matching stat to the row
+for stat in ['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'START_POSITION']:
+    if stat in match.columns:
+        current_game[stat] = match[stat].values[0]
 
 starts_as_C                    -> Corr: nan (p=nan)
 starts_as_G                    -> Corr: nan (p=nan)
