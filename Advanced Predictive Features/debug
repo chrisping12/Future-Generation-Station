@@ -15,3 +15,26 @@ inv
 max
 min
 round
+
+Here is a copy of my function
+
+def model_func(row):
+            try:
+                local_vars = {var: row.get(var, np.nan) for var in required_vars}
+                return eval(
+                    equation_str,
+                    {
+                        "__builtins__": None,
+                        "sqrt": safe_sqrt,
+                        "log": safe_log,
+                        "inv": safe_inv,
+                        "exp": np.exp,
+                        "ceil": np.ceil,
+                        "floor": np.floor,
+                        "round": round,
+                        "max": max,
+                        "min": min,
+                        "abs": abs
+                    },
+                    local_vars
+                )
