@@ -1,6 +1,21 @@
-Would it be safer for me to just input the inv definition here? 
+I am still getting the error message:
+[!] Eval error with expression: ceil(((fg_pct_vs_avg_delta * ((adjusted_shot_creation + max(((rolling_usg_pct_5G ** -0.6628592) / inv(volume_efficiency_to_pts)) - round(inv(exp(-2.7052715 + min(delta_fga_vs_rolling - -0.8848275, (0.76128376 ** (rolling_pts_from_ft_5g - -0.15936984)) / inv(sqrt(adjusted_shot_creation)))))), 0.56306535)) * delta_fga_vs_rolling)) ** 0.8927275) + -0.08081033) * 0.9920129 — 'float' object is not callable
 
-def _build_model_functions(self):
+MY entire code is pasted below. can you work this out to help me please?
+
+import pandas as pd
+import numpy as np
+import re
+from math import sqrt, log
+from typing import Union
+
+class PySRModelLoader:
+    def __init__(self, model_path: str):
+        self.model_path = model_path
+        self.equations_df = pd.read_csv(model_path)
+        self.models = self._build_model_functions()
+
+    def _build_model_functions(self):
         model_funcs = {}
         for _, row in self.equations_df.iterrows():
             complexity = row['Complexity']
@@ -15,3 +30,126 @@ def _build_model_functions(self):
                 'loss': row['Loss']
             }
         return model_funcs
+
+    def _extract_variable_names(self, equation: str):
+        tokens = re.findall(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', equation)
+        known_funcs = {'sqrt', 'log'}
+        variables = sorted(set(t for t in tokens if t not in known_funcs and not t.isnumeric()))
+        return variables
+
+    def _create_function(self, equation_str, required_vars):
+        def safe_sqrt(x):
+            try:
+                return sqrt(x) if x >= 0 else 0
+            except:
+                return 0
+            
+        def safe_inv(x):
+            try:
+                return 1.0 / x
+            except:
+                return 0
+
+        def safe_log(x):
+            try:
+                return log(x) if x > 0 else 0
+            except:
+                return 0
+
+        def model_func(row):
+            try:
+                local_vars = {var: row.get(var, np.nan) for var in required_vars}
+                return eval(
+                    equation_str,
+                    {"__builtins__": None, "sqrt": safe_sqrt, "log": safe_log, "inv": safe_inv},
+                    local_vars
+                )
+            except Exception as e:
+                print(f"[!] Eval error with expression: {equation_str} — {e}")
+                return np.nan
+        return model_func
+    
+    def get_best_model(self):
+        return min(self.models.items(), key=lambda x: x[1]['loss'])[1]
+
+    def predict(self, features_df: "pd.DataFrame", complexity: int = None) -> "pd.Series":
+        """
+        Predicts for a whole DataFrame of features using specified model complexity.
+        If none is passed, use the best one (lowest loss).
+        """
+        if complexity is None:
+            model = self.get_best_model()
+        else:
+            model = self.models.get(complexity)
+            if model is None:
+                raise ValueError(f"No model found with complexity: {complexity}")
+
+        func = model["func"]
+        return features_df.apply(lambda row: func(row.to_dict()), axis=1)
+
+def predict(self, features_df: pd.DataFrame, complexity: int = None):
+    if complexity is None:
+        model = self.get_best_model()
+    else:
+        model = self.models.get(complexity)
+        if model is None:
+            raise ValueError(f"No model found with complexity: {complexity}")
+
+    func = model['func']
+    # This MUST return a Series
+    return features_df.apply(lambda row: pd.to_numeric(func(row.to_dict()), errors='coerce'), axis=1)
+
+class FeatureDatasetLoader:
+    def __init__(self, feature_csv_path: str):
+        self.df = pd.read_csv(feature_csv_path)
+
+        # Remove infs
+        self.df = self.df.replace([np.inf, -np.inf], np.nan)
+
+        # Drop only if key prediction features are missing
+        key_features = ['rolling_pts_avg_5G', 'rolling_fga_5G', 'adjusted_pts_proj_def', 'pts_to_3pm_ratio', 'shots_per_min']
+        self.df = self.df.dropna(subset=key_features)
+
+    def get_features(self):
+        return self.df
+
+if __name__ == "__main__":
+    # Load feature data
+    feature_loader = FeatureDatasetLoader("nba_player_features_rolling5G.csv")
+    features_df = feature_loader.get_features()
+    #print(features_df.columns.tolist())
+    print(f"Loaded {len(features_df)} rows.")
+
+    if features_df.empty:
+        print("[!] Feature DataFrame is empty. Cannot proceed with prediction.")
+    else:
+        # Load PySR equations
+        model_loader = PySRModelLoader("hall_of_fame.csv")
+
+        # 🔍 SANITY CHECK ON FIRST ROW
+        best_model = model_loader.get_best_model()
+        test_row = features_df.iloc[0].to_dict()
+
+        #print("\n[Best Model]")
+        #print("Equation:", best_model["equation"])
+        #print("Required Vars:", best_model["required_vars"])
+        #print("Row Sample:")
+        #print({k: test_row.get(k, 'Missing') for k in best_model["required_vars"]})
+
+        try:
+            pred = best_model["func"](test_row)
+            #print("[✓] First prediction result:", pred)
+        except Exception as e:
+            print("[!] Error evaluating first prediction:", e)
+
+        # Predict with best model
+        predictions = model_loader.predict(features_df)
+        if isinstance(predictions, pd.DataFrame):
+            print("[!] Warning: Predict function returned a DataFrame instead of Series")
+            predictions = predictions.iloc[:, 0]  # Use first column if so
+
+        features_df["pysr_prediction"] = predictions
+
+        print(features_df[['PLAYER_NAME', 'GAME_DATE', 'rolling_pts_avg_5G', 'pysr_prediction', 'PTS']].head(20))
+        features_df.to_csv("predictions_with_pysr.csv", index=False)
+        print("[✓] Predictions saved to predictions_with_pysr.csv")
