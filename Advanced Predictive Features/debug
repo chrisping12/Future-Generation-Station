@@ -1,10 +1,6 @@
+in my _team_data.py modeule file this is how it is set up. 
 
-
-✋ Question for you to confirm before I start building this:
-
-What format is _team_data.py in?
-ANSWER:
-
+# Team-player dictionary
 players_by_team = {
     "Celtics": [
         ("Jayson Tatum"),
@@ -22,19 +18,5 @@ players_by_team = {
         ("Josh Hart"),
         ("Miles McBride")
     ],   
-
-
-And second:
-	•	Will you always be pulling the latest 5 games automatically? (i.e., we auto-fetch 5 past games using NBA_API)?
-		FOR NOW YES WE WILL BE USING 5G AVG
-
-	•	Do you have a static game log file you want to read from?
-		IM WONDERING IF WE CAN READ FROM "features_df just like PYSR did. This will have all featrues for the entire season to date. 
-
-⸻
-
-⭐ Once you answer, I can build a full version of this system for you step-by-step!
-
-This will be the cleanest, most reliable, betting-grade system you’ve ever had.
-Ready??
-(Just tell me how _team_data.py looks and whether to fetch live games or read from a file!) 🚀
+    # etc....
+}
