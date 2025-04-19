@@ -1,4 +1,17 @@
-Can you help me with this?
+Would it be safer for me to just input the inv definition here? 
 
-Loaded 769 rows.
-[!] Eval error with expression: ceil(((fg_pct_vs_avg_delta * ((adjusted_shot_creation + max(((rolling_usg_pct_5G ** -0.6628592) / inv(volume_efficiency_to_pts)) - round(inv(exp(-2.7052715 + min(delta_fga_vs_rolling - -0.8848275, (0.76128376 ** (rolling_pts_from_ft_5g - -0.15936984)) / inv(sqrt(adjusted_shot_creation)))))), 0.56306535)) * delta_fga_vs_rolling)) ** 0.8927275) + -0.08081033) * 0.9920129 — 'float' object is not callable
+def _build_model_functions(self):
+        model_funcs = {}
+        for _, row in self.equations_df.iterrows():
+            complexity = row['Complexity']
+            eq_str = row['Equation']
+            eq_str_fixed = eq_str.replace("^", "**")
+            required_vars = self._extract_variable_names(eq_str_fixed)
+            func = self._create_function(eq_str_fixed, required_vars)
+            model_funcs[complexity] = {
+                'func': func,
+                'equation': eq_str_fixed,
+                'required_vars': required_vars,
+                'loss': row['Loss']
+            }
+        return model_funcs
