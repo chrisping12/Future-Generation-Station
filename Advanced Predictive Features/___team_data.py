@@ -6,7 +6,7 @@ players_by_team = {
         ("Derrick White"),
         ("Jrue Holiday"),
         ("Payton Pritchard"),
-        ("Kristaps Porziņģis")
+        ("Kristaps Porzingis")
     ],
     "Knicks": [
         ("Karl-Anthony Towns"),
@@ -15,7 +15,139 @@ players_by_team = {
         ("Mikal Bridges"),
         ("Josh Hart"),
         ("Miles McBride")
-    ],   
+    ],
+    "Cavs": [
+        ("Donovan Mitchell"),
+        ("Darius Garland"),
+        ("Evan Mobley"),
+        ("Jarrett Allen"),
+        ("Dean Wade"),
+        ("Max Strus"),
+        ("De'Andre Hunter"),
+        ("Ty Jerome"),
+    ],
+    #"Bucks": [
+        #("Damian Lillard"),
+        #("Andre Jackson Jr"),
+        #("Taurean Prince"),
+        #("Giannis Antetokounmpo"),
+        #("Brook Lopez"),
+        #("Gary Trent Jr")
+    #],
+    #"Pacers": [
+        #("Tyrese Haliburton"),
+        #("Myles Turner"),
+        #("Pascal Siakam"),
+        #("Bennedict Mathurin"),
+        #("T.J. McConnell"),
+        #("Andrew Nembhard"),
+        #("Ben Sheppard"),
+        #("Obi Toppin"),
+        #("Aaron Nesmith"),
+    #],
+    "Pistons": [
+        ("Cade Cunningham"),
+        ("Tim Hardaway Jr"),
+        ("Ausar Thompson"),
+        ("Tobias Harris"),
+        ("Malik Beasley"),
+        ("Jalen Duren"),
+        ("Dennis Schroder"),
+        ("Isaiah Stewart"),
+    ],
+    "Magic": [
+        ("Cole Anthony"),
+        ("Kentavious Caldwell-Pope"),
+        ("Franz Wagner"),
+        ("Paolo Banchero"),
+        ("Goga Bitadze"),
+        ("Wendell Carter Jr")
+    ],
+    "Heat": [
+        ("Tyler Herro"),
+        ("Duncan Robinson"),
+        ("Andrew Wiggins"),
+        ("Bam Adebayo"),
+        ("Kel'el Ware"),
+        ("Terry Rozier"),
+        ("Jaime Jaquez Jr"),
+        ("Davion Mitchell"),
+    ],
+    "Thunder": [
+        ("Shai Gilgeous-Alexander"),
+        ("Jalen Williams"),
+        ("Isaiah Joe"),
+        ("Luguentz Dort"),
+        ("Isaiah Hartenstein"),
+        ("Aaron Wiggins"),
+        ("Cason Wallace"),
+        ("Chet Holmgren"),
+    ],
+    "Nuggets": [
+        ("Nikola Jokic"),
+        ("Jamal Murray"),
+        ("Michael Porter Jr"),
+        ("Christian Braun"),
+        ("Aaron Gordon"),
+        ("Russell Westbrook"),
+        ("Julian Strawther")
+    ],
+    "Timberwolves": [
+        ("Anthony Edwards"),
+        ("Julius Randle"),
+        ("Jaden McDaniels"),
+        ("Rudy Gobert"),
+        ("Mike Conley"),
+        ("Donte DiVincenzo"),
+        ("Naz Reid"),
+        ("Nickeil Alexander-Walker")
+    ],
+    "Warriors": [
+        ("Stephen Curry"),
+        ("Buddy Hield"),
+        ("Draymond Green"),
+        ("Jimmy Butler"),
+        ("Jonathan Kuminga"),
+        ("Brandin Podziemski"),
+        ("Quinten Post")
+    ],
+    "Clippers": [
+        ("James Harden"),
+        ("Ivica Zubac"),
+        ("Norman Powell"),
+        ("Derrick Jones Jr"),
+        ("Kevin Porter Jr"),
+        ("Kris Dunn"),
+        ("Amir Coffey"),
+        ("Bogdan Bogdanovic"),
+        
+    ],
+    "Lakers": [
+        ("Luka Doncic"),
+        ("LeBron James"),
+        ("Austin Reaves"),
+        ("Rui Hachimura"),
+        ("Jaxson Hayes"),
+        ("Dorian Finney-Smith")
+    ],
+    "Rockets": [
+        ("Jalen Green"),
+        ("Alperen Sengun"),
+        ("Fred VanVleet"),
+        ("Dillon Brooks"),
+        ("Jabari Smith Jr"),
+        ("Amen Thompson")
+    ],
+    "Grizzlies": [
+        ("Jaren Jackson Jr"),
+        ("Ja Morant"),
+        ("Santi Aldama"),
+        ("Desmond Bane"),
+        ("Zach Edey"),
+        ("Jaylen Wells"),
+        ("Scotty Pippen Jr."),
+        ("Luke Kennard")
+    ],
 }
 
 # Team-player dictionary

@@ -49,17 +49,19 @@ y = df[target_column]
 
 # Create a PySR model with Feature Selection
 model = PySRRegressor(
-    niterations=500,
+    niterations=100,
     populations=20,
-    population_size=100,
-    maxsize=40,
+    population_size=500,
+    maxsize=20,
     unary_operators=["round", "floor", "ceil", "exp", "inv", "log", "sqrt"],
-    binary_operators=["+", "-", "*", "/", "^", "logical_or", "logical_and", "max", "min"],
-    elementwise_loss="L2DistLoss()",
+    binary_operators=["+", "-", "*", "/", "^", "logical_or", "logical_and", "max", "min", "cond"],
+    elementwise_loss="HuberLoss()",
+    weight_complexity=0.0001,
     progress=True,
+    denoise=True,
     verbosity=1,
     output_torch_format=False,
-    select_k_features=8
+    select_k_features=10
 )
 
 # Fit the model to your data
