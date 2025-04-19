@@ -19,10 +19,42 @@ def get_team_rolling_avg(team_id, current_game_date, stat_col, window=5):
     df = df[df['GAME_DATE'] < pd.to_datetime(current_game_date)]
     df = df.sort_values('GAME_DATE')
 
+    if stat_col not in df.columns:
+        print(f"[WARN] Column '{stat_col}' not found in team stats.")
+        return np.nan
+
+    if df.empty:
+        print(f"[WARN] No games found for TEAM_ID {team_id} before {current_game_date}.")
+        return np.nan
+
+    return df[stat_col].tail(window).mean()
+
+def get_t__team_rolling_avg(team_id, current_game_date, stat_col, window=5):
+    if _team_stats_df is None:
+        raise RuntimeError("Team stats not loaded. Call load_team_stats() first.")
+
+    df = _team_stats_df.copy()
+
+    # Filter for the right team
+    df = df[df['TEAM_ID'] == team_id]
+
+    # Only keep numeric columns + GAME_DATE
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    numeric_cols += ['GAME_DATE']  # Keep GAME_DATE for grouping
+    df = df[numeric_cols]
+
+    # Group by GAME_DATE and average
+    df = df.groupby('GAME_DATE').mean().reset_index()
+
+    # Filter games before current
+    df = df[df['GAME_DATE'] < pd.to_datetime(current_game_date)]
+    df = df.sort_values('GAME_DATE')
+
     if stat_col not in df.columns or df.empty:
         return np.nan
 
     return df[stat_col].tail(window).mean()
+
 
 def get_latest_team_stat(team_id, current_game_date, stat_col):
     if _team_stats_df is None:

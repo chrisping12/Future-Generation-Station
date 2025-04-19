@@ -12,7 +12,7 @@ df = pd.read_csv('nba_player_features_rolling5G.csv')
 # Fill NaN values with column means
 df = df.fillna(df.mean(numeric_only=True))
 
-non_numeric_cols = ['PLAYER_NAME', 'GAME_DATE', 'rolling_usg_pct_5G', 'delta_min_vs_rolling']
+non_numeric_cols = ['PLAYER_NAME', 'GAME_DATE', ]# 'rolling_usg_pct_5G', 'delta_min_vs_rolling']
 df = df.drop(columns=non_numeric_cols)
 
 # Check data types of all columns
@@ -49,16 +49,16 @@ y = df[target_column]
 
 # Create a PySR model with Feature Selection
 model = PySRRegressor(
-    niterations=100,
+    niterations=500,
     populations=20,
-    population_size=1000,
-    maxsize=20,
-    unary_operators=["log", "sqrt"],
-    binary_operators=["+", "-", "*", "/", "^"],
+    population_size=100,
+    maxsize=40,
+    unary_operators=["round", "floor", "ceil", "exp", "inv", "log", "sqrt"],
+    binary_operators=["+", "-", "*", "/", "^", "logical_or", "logical_and", "max", "min"],
     elementwise_loss="L2DistLoss()",
     progress=True,
     verbosity=1,
-    output_torch_format=True,
+    output_torch_format=False,
     select_k_features=8
 )
 

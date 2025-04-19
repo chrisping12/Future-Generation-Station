@@ -21,7 +21,7 @@ def enrich_with_adv_player_stats(past_games):
     adv_columns = [
     'PLAYER_ID', 'GAME_DATE', 
     'AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 
-    'TEAM_E_PACE', 'POSS', 'USG_PCT', 'START_POSITION',
+    'TEAM_E_PACE', 'POSS', 'USG_PCT', 'E_USG_PCT', 'START_POSITION',
     'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'PTS_3', 'PTS_2', 'PTS_FT',
     'LOOSE_BALLS_RECOVERED', 'SCREEN_ASSISTS','TCHS', 'PTS_FB'
     ]
@@ -61,7 +61,7 @@ def enrich_current_game_with_adv_stats(current_game):
         return current_game  # Return original, unmodified
 
     # Add each matching stat to the row
-    for stat in ['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF']:
+    for stat in ['AST_PCT', 'OREB_PCT', 'REB_PCT', 'DREB_PCT', 'E_PACE', 'POSS', 'TEAM_BLK', 'TEAM_STL', 'TEAM_PF', 'START_POSITION']:
         if stat in match.columns:
             current_game[stat] = match[stat].values[0]
 
