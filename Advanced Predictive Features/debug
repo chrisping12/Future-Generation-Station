@@ -1,52 +1,23 @@
-Good — thanks for confirming.
-Yes, I see exactly how your _team_data.py is structured. That’s perfect for loading your player pool.
+I still keep getting this output. 
 
-⸻
+Teams playing today: {1610612743, 1610612746, 1610612747, 1610612749, 1610612750, 1610612752, 1610612754, 1610612765}
+[✓] 6 players from your list have games today.
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+[!] Prediction error: 'numpy.float64' object cannot be interpreted as an integer
+            PLAYER_NAME   GAME_DATE  predicted_points  floored_prediction
+491       Jalen Brunson  2025-04-11               NaN                 NaN
+709           Josh Hart  2025-04-11               NaN                 NaN
+431  Karl-Anthony Towns  2025-04-10               NaN                 NaN
+637       Mikal Bridges  2025-04-13               NaN                 NaN
+768       Miles McBride  2025-04-13               NaN                 NaN
+560          OG Anunoby  2025-04-11               NaN                 NaN
+[✓] Today's predictions saved to 'today_predictions.csv'
 
-✅ Now here’s the very good news:
-
-You don’t need to modify your _team_data.py at all!
-
-Instead, because you already have TEAM_ID inside nba_player_features_rolling5G.csv,
-we can simply grab the correct team for each player by matching on the last available game log.
-
-⸻
-
-✨ So your working pipeline will be:
-	1.	Load players from _team_data.py.
-	2.	Load "nba_player_features_rolling5G.csv".
-	3.	Pull today’s playing team_ids from NBA_API using the scoreboardv2 endpoint.
-	4.	For each player:
-	•	Find their latest TEAM_ID inside features_df.
-	•	If their team is playing today (TEAM_ID in today’s teams), keep them.
-	•	Otherwise, skip.
-	5.	Predict only for players active today.
-
-⸻
-
-⚙️ Requirements checklist:
-
-Step	Status
-_team_data.py player loading	✅ ready
-nba_player_features_rolling5G.csv with TEAM_ID	✅ confirmed
-NBA_API scoreboardv2 fetch today’s games	✅ implemented
-Use precomputed features only	✅ confirmed
-
-
-
-⸻
-
-✍️ Now let me quickly build the final script for you:
-
-🚀 FINAL daily_playoff_predictor.py
-
-# daily_playoff_predictor.py
-
-import pandas as pd
-import numpy as np
-from datetime import datetime
-from nba_api.stats.endpoints import scoreboardv2
-from _team_data import players_by_team
+Here is the code I have entered:
 
 # ============================================
 # Define safe functions
@@ -60,7 +31,7 @@ def predict_points(row):
         delta_fga_vs_rolling = row['delta_fga_vs_rolling']
         fg_pct_vs_avg_delta = row['fg_pct_vs_avg_delta']
         rolling_pts_from_ft_5g = row['rolling_pts_from_ft_5g']
-        rolling_usg_pct_5g = row['rolling_usg_pct_5g']
+        rolling_usg_pct_5G = row['rolling_usg_pct_5G']
         volume_efficiency_to_pts = row['volume_efficiency_to_pts']
 
         result = np.ceil(
@@ -71,7 +42,7 @@ def predict_points(row):
                         adjusted_shot_creation
                         + np.max(
                             (
-                                (rolling_usg_pct_5g ** -0.6628592)
+                                (rolling_usg_pct_5G ** -0.6628592)
                                 / inv(volume_efficiency_to_pts)
                             )
                             - round(
@@ -85,7 +56,7 @@ def predict_points(row):
                                         )
                                     )
                                 ),
-                                0.56306535
+                                0
                             )
                         )
                         * delta_fga_vs_rolling
@@ -113,71 +84,3 @@ def get_today_team_ids():
     return team_ids
 
 # ============================================
-
-if __name__ == "__main__":
-    # Load today's teams
-    today_team_ids = get_today_team_ids()
-    print(f"Teams playing today: {today_team_ids}")
-
-    # Load full feature set
-    features_df = pd.read_csv("nba_player_features_rolling5G.csv")
-    features_df = features_df.drop_duplicates(subset=["PLAYER_NAME", "GAME_DATE"]).sort_values(by=["PLAYER_NAME", "GAME_DATE"])
-
-    # Flatten list of all players
-    target_players = [player for team_players in players_by_team.values() for player in team_players]
-
-    # Filter features to only target players
-    candidate_df = features_df[features_df['PLAYER_NAME'].isin(target_players)].copy()
-
-    # Keep only players whose last TEAM_ID is playing today
-    latest_game_df = candidate_df.sort_values('GAME_DATE').drop_duplicates('PLAYER_NAME', keep='last')
-
-    playing_today_df = latest_game_df[latest_game_df['TEAM_ID'].isin(today_team_ids)].copy()
-
-    if playing_today_df.empty:
-        print("[!] No players from your list have games today.")
-    else:
-        print(f"[✓] {len(playing_today_df)} players from your list have games today.")
-
-        # Apply prediction
-        playing_today_df['predicted_points'] = playing_today_df.apply(predict_points, axis=1)
-        playing_today_df['floored_prediction'] = playing_today_df['predicted_points'].apply(floor_to_nearest_5)
-
-        # Final output
-        output_cols = ['PLAYER_NAME', 'GAME_DATE', 'predicted_points', 'floored_prediction']
-        print(playing_today_df[output_cols].sort_values(by=['PLAYER_NAME']))
-
-        # Save to file
-        playing_today_df[output_cols].to_csv("today_predictions.csv", index=False)
-        print("[✓] Today's predictions saved to 'today_predictions.csv'")
-
-
-
-⸻
-
-⭐ Summary:
-
-Action	Result
-Auto-fetch today’s teams	✅
-Auto-filter players on today’s teams	✅
-Predict points using frozen PySR expression	✅
-Floor predictions to nearest 5	✅
-Save clean CSV output	✅
-
-
-
-⸻
-
-✋ Small Note:
-	•	If NBA_API ever changes structure mid-playoffs (rare), we might slightly adjust the scoreboardv2 parsing, but it’s stable 99% of the time.
-
-⸻
-
-⚡ Now you’ll have a clean daily playoff predictor for parlays!!
-
-⸻
-
-Would you also like me to immediately show you a small optional upgrade where:
-	•	It color-codes the output (Green if projected hit, Red if projected miss vs your desired bet line)?
-Takes 5 lines — super helpful if you want fast manual checks!
-Want me to add that too? 🚀🎯
