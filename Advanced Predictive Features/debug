@@ -1,40 +1,116 @@
+Awesome — thanks for being so detailed.
+You’re actually very, very close — I can immediately see the small (but important) reason you’re still getting the 'float' object is not callable error even though your model_func looks correct.
 
-These are the required variables the script is trying to calc predictions for. 
+⸻
 
-The features listed all have int populating their cells.  The operators listed below are the ones im worried about causing this error. 
+🚨 Here’s the real issue:
 
-adjusted_shot_creation 
-delta_fga_vs_rolling 
-fg_pct_vs_avg_delta 
-rolliing_pts_from_ft_5g
-rolling_usg_pct_5g
-volume_efficienct_to_pts
-ceil
-exp
-inv
-max
-min
-round
+Inside your local_vars dictionary you build:
 
-Here is a copy of my function
+local_vars = {var: row.get(var, np.nan) for var in required_vars}
+
+you are pulling:
+	•	adjusted_shot_creation
+	•	delta_fga_vs_rolling
+	•	fg_pct_vs_avg_delta
+	•	rolling_pts_from_ft_5g
+	•	rolling_usg_pct_5g
+	•	volume_efficiency_to_pts
+
+✅ GOOD — these are all features with numbers.
+
+BUT:
+
+You’re also accidentally pulling ceil, exp, inv, max, min, round as “variables”!!
+
+Because you are blindly looping over all required_vars including the function names!
+
+⸻
+
+❗ What happens?
+
+You overwrite the real function (like ceil) with a float (np.nan) in local_vars.
+Thus when you later call ceil(...), Python tries to call a float and crashes.
+
+⸻
+
+✨ How to fix it:
+
+Before building local_vars, you must filter out any operators like ceil, exp, etc.
+
+✅ Add a protected_functions set:
+
+protected_functions = {"sqrt", "log", "inv", "exp", "ceil", "floor", "round", "max", "min", "abs"}
+
+✅ Then only pull real features into local_vars:
+
+local_vars = {var: row.get(var, np.nan) for var in required_vars if var not in protected_functions}
+
+✅ So math functions remain callable, not overwritten by floats.
+
+⸻
+
+✍️ Corrected model_func for you:
 
 def model_func(row):
-            try:
-                local_vars = {var: row.get(var, np.nan) for var in required_vars}
-                return eval(
-                    equation_str,
-                    {
-                        "__builtins__": None,
-                        "sqrt": safe_sqrt,
-                        "log": safe_log,
-                        "inv": safe_inv,
-                        "exp": np.exp,
-                        "ceil": np.ceil,
-                        "floor": np.floor,
-                        "round": round,
-                        "max": max,
-                        "min": min,
-                        "abs": abs
-                    },
-                    local_vars
-                )
+    try:
+        protected_functions = {"sqrt", "log", "inv", "exp", "ceil", "floor", "round", "max", "min", "abs"}
+        local_vars = {var: row.get(var, np.nan) for var in required_vars if var not in protected_functions}
+        return eval(
+            equation_str,
+            {
+                "__builtins__": None,
+                "sqrt": safe_sqrt,
+                "log": safe_log,
+                "inv": safe_inv,
+                "exp": np.exp,
+                "ceil": np.ceil,
+                "floor": np.floor,
+                "round": round,
+                "max": max,
+                "min": min,
+                "abs": abs
+            },
+            local_vars
+        )
+    except Exception as e:
+        print(f"[!] Eval error with expression: {equation_str} — {e}")
+        return np.nan
+
+
+
+⸻
+
+✅ What this fixes:
+
+Problem	Solution
+Overwriting math functions with NaN or ints	Only pull real feature columns, leave functions alone
+‘float’ object is not callable error	✅ Eliminated
+Ceil/exp/max/min/round errors in eval	✅ Fixed
+
+
+
+⸻
+
+⚡ Summary of what happened:
+	•	PySR equation says it needs ceil, max, inv, etc.
+	•	You pulled those into local_vars as floats instead of leaving them callable.
+	•	Now we exclude those during feature lookup.
+	•	So real math functions stay active and callable in eval.
+
+⸻
+
+✅ After you do this:
+	•	model_func will work.
+	•	You can predict safely on all players.
+	•	Even complicated nested PySR formulas like yours will work without any float/callable mismatch.
+
+⸻
+
+✋ Would you also like me to give you a tiny helper upgrade that automatically:
+	•	Warns you if your feature names are misspelled (e.g., you wrote rolliing_pts_from_ft_5g instead of rolling_pts_from_ft_5g)?
+	•	Prevents silent NaN injection from typos?
+
+Only if you want!
+It’s a 5-line safety upgrade — could save you big headaches later.
+Want it?? 🚀
