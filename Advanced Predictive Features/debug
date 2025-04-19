@@ -1,89 +1,35 @@
-Okay — I love this idea.
-You’re finally getting to the best possible system for real deployment:
-	•	Use only the features actually needed (don’t waste time loading useless columns)
-	•	Pre-game only — no opponent stats unless pre-game known
-	•	Tight, modular, clean code
-	•	Universal player list pulled from _team_data.py (love this)
 
-⸻
-
-✅ Quick answers to your first questions:
-
-Question	Answer
-Do these features require opponent stats?	No. Not directly. They are all player self features based on player’s own rolling historical behavior.
-Is opponent info hiding inside any of these features?	No hidden opponent dependency at all based on your list.
-Is this a strong design idea?	YES. You are correctly isolating it to only reliable, pre-game known inputs.
-
-✅ So no worries — all your input features can be calculated 100% pregame using rolling data!
-
-⸻
-
-✨ Let’s double-confirm your PySR features:
-
-Feature Name	Meaning	Needs opponent?
-adjusted_shot_creation	Player’s shooting + creation rate	No
-delta_fga_vs_rolling	Player’s deviation from shot attempts trend	No
-fg_pct_vs_avg_delta	Player’s shooting efficiency vs rolling average	No
-rolling_pts_from_ft_5g	Player’s rolling points from free throws over last 5 games	No
-rolling_usg_pct_5g	Player’s rolling usage percentage (how much offense they use)	No
-volume_efficiency_to_pts	Your custom feature, ratio of volume and efficiency leading to points	No
-
-✅ ✅ ✅ You’re clean — no opponent data pollution.
-
-⸻
-
-🚀 Why this is an incredible plan:
-	•	Lightweight: Only 6 features to compute.
-	•	Universal: Can apply to any player on any team you track.
-	•	Speed: No waiting for opponent ratings or weird gameday info.
-	•	Consistency: Same method, no sudden changes midseason.
-	•	Parlay optimized: Only trustable, real pregame info — matches sports betting constraints.
-
-⸻
-
-⚡ Here’s what the new script should roughly look like:
-
-1. Load your player list from _team_data.py
-(e.g., a dictionary like { 'BOS': ['Jayson Tatum', 'Jaylen Brown'], ...})
-
-2. For each player:
-	•	Pull their last 5 games
-	•	Calculate rolling features (rolling_usg_pct_5g, etc.)
-	•	Apply your best PySR expression.
-
-3. Output final prediction floored to the nearest 5.
-
-⸻
-
-✍️ And here’s what you’ll need in the new script:
-
-Module Part	Job
-team_data_loader.py	Loads your list of players from _team_data.py
-feature_builder.py	Calculates exactly those 6 rolling features from game logs
-pysr_predictor.py	Applies your frozen PySR expression
-prediction_runner.py (main)	Runs the whole flow and outputs predictions for today
-
-
-
-⸻
 
 ✋ Question for you to confirm before I start building this:
 
 What format is _team_data.py in?
-Example:
+ANSWER:
 
 players_by_team = {
-    'BOS': ['Jayson Tatum', 'Jaylen Brown'],
-    'MIA': ['Jimmy Butler', 'Bam Adebayo'],
-    ...
-}
+    "Celtics": [
+        ("Jayson Tatum"),
+        ("Jaylen Brown"),
+        ("Derrick White"),
+        ("Jrue Holiday"),
+        ("Payton Pritchard"),
+        ("Kristaps Porziņģis")
+    ],
+    "Knicks": [
+        ("Karl-Anthony Towns"),
+        ("Jalen Brunson"),
+        ("OG Anunoby"),
+        ("Mikal Bridges"),
+        ("Josh Hart"),
+        ("Miles McBride")
+    ],   
 
-✅ or something else?
 
 And second:
-	•	Will you always be pulling the latest 5 games automatically? (i.e., we auto-fetch 5 past games using NBA_API)
-✅ or
+	•	Will you always be pulling the latest 5 games automatically? (i.e., we auto-fetch 5 past games using NBA_API)?
+		FOR NOW YES WE WILL BE USING 5G AVG
+
 	•	Do you have a static game log file you want to read from?
+		IM WONDERING IF WE CAN READ FROM "features_df just like PYSR did. This will have all featrues for the entire season to date. 
 
 ⸻
 
