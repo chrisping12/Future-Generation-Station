@@ -1,26 +1,118 @@
-[Error - 3:06:04 PM] Apr 22, 2025, 3:06:02 PM Unable to resolve module for:L/bsw4tbmir7_Code_Predictions/Predictions/Feature_Generation_Station/Advanced Predictive Features/6_PySR_2.py
-Unable to resolve module for:L/bsw4tbmir7_Code_Predictions/Predictions/Feature_Generation_Station/Advanced Predictive Features/6_PySR_2.py
-java.lang.RuntimeException: Unable to resolve module for:L/bsw4tbmir7_Code_Predictions/Predictions/Feature_Generation_Station/Advanced Predictive Features/6_PySR_2.py
-	at org.python.pydev.ast.builder.PyDevBuilderVisitor.getModuleName(PyDevBuilderVisitor.java:211)
-	at com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor.doVisitChangedResource(AnalysisBuilderVisitor.java:248)
-	at com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor.doVisitChangedResource(AnalysisBuilderVisitor.java:202)
-	at org.python.pydev.pydev_lsp.PyDevCodeAnalysis.run(PyDevCodeAnalysis.java:192)
-	at org.python.pydev.core.concurrency.RunnableAsJobsPoolThread$1.run(RunnableAsJobsPoolThread.java:140)
-	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+I see the same thing Ive seen the last 3 days.... Never anything about julia
 
-Also every time I open code, powershell used to be running... Now it always says this:
+Active code page: 65001
 
-powershell
+Data types of all columns:
+PLAYER_ID                     int64
+TEAM_ID                       int64
+OPP_TEAM_ID                   int64
+HOME_AWAY                     int64
+rolling_pts_avg_5G          float64
+                             ...
+usg_min_product             float64
+scoring_touch_ratio         float64
+volume_efficiency_to_pts    float64
+adjusted_shot_creation      float64
+PTS                           int64
+Length: 73, dtype: object
 
-Process ID (PID): 7948
+NaN counts for each column immediately after conversion:
+PLAYER_ID                   0
+TEAM_ID                     0
+OPP_TEAM_ID                 0
+HOME_AWAY                   0
+rolling_pts_avg_5G          0
+                           ..
+usg_min_product             0
+scoring_touch_ratio         0
+volume_efficiency_to_pts    0
+adjusted_shot_creation      0
+PTS                         0
+Length: 73, dtype: int64
 
-Command line: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command 'try { . "c:\Users\chrism\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}'
+No NaNs detected. Proceeding to PySR.
+Using features ['adjusted_pts_proj_def' 'rolling_fga_5G' 'delta_fga_vs_rolling'
+ 'fg_pct_vs_avg_delta' 'usg_min_product' 'adjusted_shot_creation']
 
-The following extensions have contributed to this terminal's environment:
+Here is my PySR Code:
 
-Python Debugger: Enables use of no-config debugging, debugpy <script.py>, in the terminal.
-Python: Activated environment for .\v_env_test\Scripts\python.exe
- The following extensions want to relaunch the terminal to contribute to its environment:
 
-Python
-Python Debugger: Enables use of no-config debugging, debugpy <script.py>, in the terminal.
+import pandas as pd
+import numpy as np
+import joblib
+import os 
+os.system('chcp 65001')
+from pysr import PySRRegressor
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+
+# Load the data
+df = pd.read_csv('nba_player_features_rolling5G.csv')
+# Fill NaN values with column means
+df = df.fillna(df.mean(numeric_only=True))
+
+non_numeric_cols = ['PLAYER_NAME', 'GAME_DATE', ]# 'rolling_usg_pct_5G', 'delta_min_vs_rolling']
+df = df.drop(columns=non_numeric_cols)
+
+# Check data types of all columns
+print("\nData types of all columns:")
+print(df.dtypes)
+
+#scaler = StandardScaler()
+#X_scaled = scaler.fit_transform(X)
+#X = pd.DataFrame(X_scaled, columns=X.columns)
+
+# Verify if there are still any NaN values
+print("\nNaN counts for each column immediately after conversion:")
+print(df.isna().sum())
+
+# Check for remaining NaN values
+if df.isna().sum().sum() > 0:
+    print("\nNaNs are still present in the DataFrame.")
+else:
+    print("\nNo NaNs detected. Proceeding to PySR.")
+
+# Save the cleaned DataFrame
+df.to_csv('cleaned_nba_data.csv', index=False)
+
+# Define your target variable
+target_column = 'PTS'
+
+# Ensure 'PTS' exists before dropping from X
+if target_column not in df.columns:
+    raise ValueError(f"'{target_column}' column not found in the DataFrame.")
+
+# Define your input features (everything except the target column)
+X = df.drop(columns=[target_column])
+y = df[target_column]
+
+# Create a PySR model with Feature Selection
+model = PySRRegressor(
+    niterations=100,
+    populations=20,
+    population_size=50,
+    maxsize=20,
+    unary_operators=["round", "floor", "ceil", "exp", "inv", "log", "sqrt"],
+    binary_operators=["+", "-", "*", "/", "^", "logical_or", "logical_and", "max", "min", "cond"],
+    elementwise_loss="HuberLoss()",
+    #weight_complexity=0.0001,
+    progress=True,
+    denoise=True,
+    verbosity=1,
+    output_torch_format=False,
+    select_k_features=6
+)
+
+# Fit the model to your data
+model.fit(X, y)
+
+# View the best discovered equation
+print(model)
+
+# View the top discovered equations (sorted by score)
+print(model.equations_)
+
+# Save the trained model
+joblib.dump(model, 'pysr_nba_model.pkl')
+
+predictions = model.predict(X)
