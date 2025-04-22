@@ -1,62 +1,39 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
+I am still unable to run Pysr on my computer. Can you tell me if anything here can help us identify why?> I initiated the starting of the code... selected the output tab in the terminal window and selected "Window" in the dropdown. This what was logged. 
 
-# Load your data
-df = pd.read_csv('predictions_with_pysr.csv')
+What is going on?
 
-# Target column
-df['PTS_25_plus'] = (df['PTS'] >= 25).astype(int)
-
-# Candidate features you were originally using
-candidate_features = [
-    'rolling_pts_avg_5G',
-    'rolling_3pm_avg_5G',
-    'rolling_usg_pct_5G',
-    'pts_trend_slope_5G',
-    'shots_per_min',
-    'pts_per_min',
-    'pts_to_3pm_ratio',
-    'rolling_fg_pct_5G',
-    'rolling_fga_5G',
-    'high_efficiency'
-]
-
-# Print nulls per column
-print("\n[!] Checking for missing values:")
-nulls = df[candidate_features].isnull().sum()
-print(nulls)
-
-# Remove columns that are fully NaN
-valid_features = [col for col in candidate_features if df[col].notnull().sum() > 0]
-print(f"\n[✓] Valid features available for plotting: {valid_features}")
-
-# Final DataFrame for pairplot
-plot_df = df[valid_features + ['PTS_25_plus']].dropna()
-print(f"[i] Shape after dropna(): {plot_df.shape}")
-if plot_df.empty:
-    raise ValueError("Still no valid rows left to plot. Choose features with better data coverage.")
-
-# Ensure hue is correct type
-plot_df['PTS_25_plus'] = plot_df['PTS_25_plus'].astype(int)
-
-# Plot
-sns.set(style='darkgrid')
-pairplot = sns.pairplot(
-    plot_df,
-    hue='PTS_25_plus',
-    palette='coolwarm',
-    diag_kind='kde',
-    plot_kws={'alpha': 0.6, 'edgecolor': 'k'}
-)
-
-# Save it
-output_dir = 'decision_boundaries'
-os.makedirs(output_dir, exist_ok=True)
-out_path = os.path.join(output_dir, 'pairplot_core_features_cleaned.png')
-pairplot.fig.suptitle('Pairplot of Clean Features (25+ PTS Classification)', y=1.02)
-pairplot.savefig(out_path)
-plt.close()
-
-print(f"\n[✓] Cleaned pairplot saved to: {out_path}")
+-04-22 09:05:45.942 [warning] [Window] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.python' wants API proposal 'terminalShellType' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-04-22 09:05:45.942 [warning] [Window] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.vscode-python-envs' wants API proposal 'terminalShellType' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-04-22 09:05:45.943 [warning] [Window] Via 'product.json#extensionEnabledApiProposals' extension 'github.copilot-chat' wants API proposal 'chatReadonlyPromptReference' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.panel.chat.view.copilot in workbench.panel.chat
+2025-04-22 09:05:46.141 [info] [Views] Added views:outline in workbench.view.explorer
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.view.search in workbench.view.search
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.scm in workbench.view.scm
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.panel.markers.view in workbench.panel.markers
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.panel.output in workbench.panel.output
+2025-04-22 09:05:46.141 [info] [Views] Added views:terminal in terminal
+2025-04-22 09:05:46.141 [info] [Views] Added views:timeline in workbench.view.explorer
+2025-04-22 09:05:46.141 [info] [Views] Added views:workbench.explorer.openEditorsView,workbench.explorer.fileView in workbench.view.explorer
+2025-04-22 09:05:46.235 [info] [Window] Started local extension host with pid 16100.
+2025-04-22 09:05:46.316 [info] [Views] Added views:workbench.debug.welcome in workbench.view.debug
+2025-04-22 09:05:46.610 [error] [Window] [tht13.python]: 'configuration.jsonValidation.url' must be an absolute URL or start with './'  to reference schemas located in the extension.
+2025-04-22 09:05:46.643 [error] [Window] Ignoring python.pydev.tests.runner.pytest.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:46.643 [error] [Window] Ignoring python.pydev.tests.runner.pydev-unittest.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:46.643 [error] [Window] Ignoring python.pydev.tests.runner.nose.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:46.676 [info] [Views] Added views:liveshare.session in workbench.view.extension.liveshare
+2025-04-22 09:05:46.676 [info] [Views] Added views:platformio-ide.quickAccess in workbench.view.extension.platformio
+2025-04-22 09:05:46.676 [info] [Views] Added views:platformio-debug.peripherals,platformio-debug.registers,platformio-debug.memory,platformio-debug.disassembly in workbench.view.debug
+2025-04-22 09:05:47.165 [info] [Views] Added views:workbench.panel.repl.view in workbench.panel.repl
+2025-04-22 09:05:47.204 [info] [Views] Added views:~remote.forwardedPorts in ~remote.forwardedPortsContainer
+2025-04-22 09:05:47.212 [info] [Window] Settings Sync: Account status changed from uninitialized to unavailable
+2025-04-22 09:05:47.268 [info] [Cloud Changes] Prompting to enable cloud changes, has application previously launched from Continue On flow: false
+2025-04-22 09:05:47.388 [info] [Views] Added views:workbench.view.testing in workbench.view.extension.test
+2025-04-22 09:05:48.629 [error] [Window] [Extension Host] (node:16100) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(Use `Code --trace-deprecation ...` to show where the warning was created)
+2025-04-22 09:05:48.785 [error] [Window] Ignoring python.pydev.tests.runner.pytest.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:48.786 [error] [Window] Ignoring python.pydev.tests.runner.pydev-unittest.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:48.786 [error] [Window] Ignoring python.pydev.tests.runner.nose.args as python.pydev.tests.runner is "pytest"
+2025-04-22 09:05:48.918 [info] [Window] [perf] Render performance baseline is 13ms
+2025-04-22 09:05:51.115 [error] [Window] [Extension Host] Lintings failed on open
+2025-04-22 09:05:51.115 [error] [Window] [Extension Host] File: file:///c%3A/Users/chrism/Documents/My%20Stuff/Code/Predictions/Feature_Generation_Station/Future-Generation-Station-main/Advanced%20Predictive%20Features/6_PySR_2.py
+2025-04-22 09:05:51.115 [error] [Window] [Extension Host] Message: TypeError: Cannot read properties of undefined (reading 'uri')
