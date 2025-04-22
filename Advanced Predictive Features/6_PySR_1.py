@@ -5,7 +5,6 @@ import os
 os.system('chcp 65001')
 from pysr import PySRRegressor
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
 
 # Load the data
 df = pd.read_csv('nba_player_features_rolling5G.csv')
@@ -47,25 +46,36 @@ if target_column not in df.columns:
 X = df.drop(columns=[target_column])
 y = df[target_column]
 
+# Cast to float32
+X = X.astype(np.float32)
+y = y.astype(np.float32)
+
 # Create a PySR model with Feature Selection
 model = PySRRegressor(
-    niterations=100,
+    niterations=1000,
     populations=20,
     population_size=500,
     maxsize=20,
-    unary_operators=["round", "floor", "ceil", "exp", "inv", "log", "sqrt"],
-    binary_operators=["+", "-", "*", "/", "^", "logical_or", "logical_and", "max", "min", "cond"],
+    unary_operators=[ "log", "sqrt"],
+    binary_operators=["+", "-", "*", "/", "^", "cond"],
     elementwise_loss="HuberLoss()",
-    weight_complexity=0.0001,
+    #weight_complexity=0.0001,
     progress=True,
     denoise=True,
-    verbosity=1,
+    verbosity=3,
+    ncycles_per_iteration=1,
     output_torch_format=False,
-    select_k_features=10
+    select_k_features=10,
+    batching=True,
+    batch_size=2048,     # start here; bump up to 4096 or even 5799 once you confirm it runs
+    precision=32,      # optional but recommended on low‑RAM machines
 )
 
-# Fit the model to your data
+print("🚀 Launching PySR…")
+import os, time
+print("⏳ Starting PySR at", time.strftime("%X"), "PID=", os.getpid())
 model.fit(X, y)
+print("✅ Done.")
 
 # View the best discovered equation
 print(model)

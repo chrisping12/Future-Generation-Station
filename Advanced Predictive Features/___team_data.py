@@ -32,7 +32,8 @@ players_by_team = {
         #("Taurean Prince"),
         #("Giannis Antetokounmpo"),
         #("Brook Lopez"),
-        #("Gary Trent Jr")
+        #("Gary Trent Jr"),
+        #("Kevin Porter Jr"),
     #],
     #"Pacers": [
         #("Tyrese Haliburton"),
@@ -84,9 +85,9 @@ players_by_team = {
         ("Chet Holmgren"),
     ],
     "Nuggets": [
-        ("Nikola Jokic"),
+        ("Nikola Jokić"),
         ("Jamal Murray"),
-        ("Michael Porter Jr"),
+        ("Michael Porter Jr."),
         ("Christian Braun"),
         ("Aaron Gordon"),
         ("Russell Westbrook"),
@@ -115,15 +116,14 @@ players_by_team = {
         ("James Harden"),
         ("Ivica Zubac"),
         ("Norman Powell"),
-        ("Derrick Jones Jr"),
-        ("Kevin Porter Jr"),
+        ("Derrick Jones Jr."),
         ("Kris Dunn"),
         ("Amir Coffey"),
         ("Bogdan Bogdanovic"),
         
     ],
     "Lakers": [
-        ("Luka Doncic"),
+        ("Luka Dončić"),
         ("LeBron James"),
         ("Austin Reaves"),
         ("Rui Hachimura"),

@@ -1,0 +1,123 @@
+EXCELLENT — this is exactly how pros think:
+“Keep the raw features available, but selectively use the best for modeling.”
+
+Let’s go step-by-step.
+
+⸻
+
+✅ First: Meta Features I Recommend Building
+
+These are combinations of your already powerful features to create new super-features.
+
+Based on your correlation results, the best candidates are:
+
+Meta Feature Idea	Formula	Why?
+volume_times_efficiency	rolling_fga_5G * pts_per_fga	Combines volume (shots attempted) with efficiency (points per shot).
+usg_min_product	rolling_usg_pct_5G * rolling_min_avg_5G	Player involvement × minutes played.
+scoring_touch_ratio	touches_to_pts_ratio * pts_per_min	Are they maximizing their touches into points quickly?
+volume_efficiency_to_pts	volume_efficiency_ratio * rolling_pts_avg_5G	How efficient AND high-scoring is the player?
+adjusted_shot_creation	rolling_fga_5G + rolling_ast_pct_5G	How much a player is either shooting or assisting — offensive involvement.
+
+
+
+⸻
+
+✅ Second: Features I Recommend Pruning (comment out for now)
+
+You want to prune low-value / low-correlation / noisy features.
+
+These features are either:
+	•	Near-zero correlation
+	•	Statistically insignificant (p > 0.05)
+	•	Just add noise
+
+Feature	Corr	Why prune it?
+rolling_opp_def_rating_5G	0.0197	Useless for predicting points
+rolling_opp_ast_pct_5G	0.0022	Same
+rolling_team_off_rating_5G	-0.0071	Same
+rolling_team_reb_pct_5G	-0.0325	Tiny negative
+rolling_team_ast_pct_5G	-0.0134	Tiny negative
+rolling_opp_reb_pct_5G	-0.0096	No signal
+latest_team_e_off_rating	-0.0045	No signal
+latest_opp_e_def_rating	0.0177	No signal
+delta_pts_vs_rolling	-0.0226	No predictive value
+delta_min_vs_rolling	-0.0110	Same
+opp_def_trend_delta	-0.0083	Same
+rest_days	0.0176	No signal
+is_b2b	-0.0164	No signal
+team_pace	-0.0565	Very slight negative
+opp_pace	0.0066	No signal
+is_trending_up	-0.0548	Weak
+is_trending_down	0.0456	Weak
+ast_to_poss_ratio	-0.0053	No signal
+HOME_AWAY	-0.0022	No signal
+rolling_looseball_rec_5g	-0.0263	No signal
+rolling_opp_blocks_5g	-0.0294	No signal
+rolling_opp_steals_5g	-0.0109	No signal
+rolling_opp_fouls_5g	-0.0142	No signal
+
+
+
+⸻
+
+✅ Third: How you can manage it easily
+
+Instead of deleting anything, I suggest:
+
+Create two lists:
+
+feature_candidates = [
+    'rolling_pts_avg_5G',
+    'rolling_pts_median_5G',
+    'rolling_min_avg_5G',
+    'rolling_fga_5G',
+    'rolling_usg_pct_5G',
+    'pts_per_min',
+    'shots_per_min',
+    'volume_efficiency_ratio',
+    'rolling_pts_from_2_5g',
+    'rolling_pts_from_ft_5g',
+    'touches_to_pts_ratio',
+    'usg_to_poss_ratio',
+    'engagement_index',
+    'is_volume_shooter',
+    'high_efficiency',
+    # --- meta features ---
+    'volume_times_efficiency', 
+    'usg_min_product',
+    'scoring_touch_ratio',
+    'volume_efficiency_to_pts',
+    'adjusted_shot_creation'
+]
+
+This would be your approved model features.
+
+You can still calculate all features in your code (for reference), but only feed selected ones into your correlation, training, and scoring.
+
+⸻
+
+✅ In short:
+
+Task	Action
+Prune low-correlation junk	(comment out features listed above)
+Create 5 powerful meta features	(listed above)
+Focus model training on high-signal features only	(small list)
+
+
+
+⸻
+
+✅ Big Picture:
+
+You’re very close to best practice standards:
+	•	Raw feature engineering (keep everything calculated)
+	•	Feature selection layer (decide what to feed into the model separately)
+	•	Meta-feature generation (combine signals for stronger modeling)
+
+⸻
+
+Would you also want me to show you a tiny function that auto-ranks features by mutual information score, not just correlation?
+
+(Mutual information can catch non-linear relationships too — really nice.)
+Would take 1 minute to add.
+Want it? (yes/no)
