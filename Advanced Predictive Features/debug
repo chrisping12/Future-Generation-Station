@@ -1,49 +1,50 @@
-Should I adjust any of these within preferences?
+This is what my settings.json look like now....
 
-Debug: Inline Values
-Show variable values inline in editor while debugging.
-"auto"
-
-Debug: Internal Console Options
-Controls when the internal Debug Console should open.
-"openOnFirstSessionStart"
-
-Debug: On Task Errors
-Controls what to do when errors are encountered after running a preLaunchTask.
-"prompt"
-
-Debug: Open Debug
-Controls when the debug view should open.
-"openOnDebugBreak"
-
-Debug: Open Explorer On End
-Automatically open the explorer view at the end of a debug session.
-'Check or uncheck'
-
-Debug: Save Before Start
-Controls what editors to save before starting a debug session.
-"allEditorsInActiveGroup"
-
-Debug: Show Sub Sessions In Tool Bar
-Controls whether the debug sub-sessions are shown in the debug tool bar. When this setting is false the stop command on a sub-session will also stop the parent session.
-'Check or uncheck'
-
-Python › Pydev › Debugger: Pydevd Cache Directory
-The directory where vscode-python-pydevd will use as a cache (usually it'll pip-install pydevd for the required Python version to have accelerators here). If not specified, it'll use a directory inside of the extension.
-
-Python › Pydev › Debugger: Pydevd Pip Install
-Whether to pip-install pydevd using pip in the cache directory to take advantage of accelerators.
-
-Python › Pydev › Debugger: Pydevd Py File
-If specified, must point to the the pydevd.py which should be used to start the debugger (instead of the one directly contributed by the extension).
-
-Debug › JavaScript: Auto Attach Smart Pattern
-Configures glob patterns for determining when to attach in "smart" Debug › JavaScript: Auto Attach Filter mode. $KNOWN_TOOLS$ is replaced with a list of names of common test and code runners. Read more on the VS Code docs.
-${workspaceFolder}/**
-!**/node_modules/**
-**/$KNOWN_TOOLS?**
-
-Debug › JavaScript: Automatically Tunnel Remote Server
-When debugging a remote web app, configures whether to automatically tunnel the remote server to your local machine.
-
-
+{
+    "python.defaultInterpreterPath": "C:\\Users\\chrism\\AppData\\Local\\Microsoft\\WindowsApps\\python3.12.exe",
+    "tabnine.experimentalAutoImports": true,
+    "cSpell.userWords": [
+        "annot",
+        "cmap",
+        "coolwarm",
+        "dtypes",
+        "figsize",
+        "fillna",
+        "isin",
+        "isna",
+        "notna",
+        "nunique",
+        "ylabel"
+    ],
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
+    "workbench.editor.enablePreview": false,
+    "dataWrangler.outputRenderer.pagination.defaultSize": 25,
+    "breadcrumbs.enabled": false,
+    "workbench.colorTheme": "Chromodynamics",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "Command Prompt": {
+            "path": [
+                "${env:windir}\\Sysnative\\cmd.exe",
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": [],
+            "icon": "terminal-cmd"
+        },
+        "Git Bash": {
+            "source": "Git Bash"
+        },
+        "Windows PowerShell": {
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
+    "python.terminal.shellIntegration.enabled": true,
+    "python.terminal.launchArgs": [],
+    "python.terminal.focusAfterLaunch": true,
+    "debug.javascript.breakOnConditionalError": true,
+    "debug.javascript.terminalOptions": {}
+}
