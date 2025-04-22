@@ -8,3 +8,19 @@ java.lang.RuntimeException: Unable to resolve module for:L/bsw4tbmir7_Code_Predi
 	at org.python.pydev.core.concurrency.RunnableAsJobsPoolThread$1.run(RunnableAsJobsPoolThread.java:140)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
 
+Also every time I open code, powershell used to be running... Now it always says this:
+
+powershell
+
+Process ID (PID): 7948
+
+Command line: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command 'try { . "c:\Users\chrism\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}'
+
+The following extensions have contributed to this terminal's environment:
+
+Python Debugger: Enables use of no-config debugging, debugpy <script.py>, in the terminal.
+Python: Activated environment for .\v_env_test\Scripts\python.exe
+ The following extensions want to relaunch the terminal to contribute to its environment:
+
+Python
+Python Debugger: Enables use of no-config debugging, debugpy <script.py>, in the terminal.
