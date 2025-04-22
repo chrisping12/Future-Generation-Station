@@ -1,11 +1,52 @@
-Does this help. I specifically ran "Run Python File In Dedicated Terminal"
+Here is everythong that pops up when I type "Debug: Python Terminal Launch"
 
-Python
+Python › Pydev › Debugger: Pydevd Cache Directory
+The directory where vscode-python-pydevd will use as a cache (usually it'll pip-install pydevd for the required Python version to have accelerators here). If not specified, it'll use a directory inside of the extension.
+Python › Pydev › Debugger: Pydevd Pip Install
+Whether to pip-install pydevd using pip in the cache directory to take advantage of accelerators.
+Python › Pydev › Debugger: Pydevd Py File
+If specified, must point to the the pydevd.py which should be used to start the debugger (instead of the one directly contributed by the extension).
+Python › Terminal: Activate Env In Current Terminal
+Activate Python Environment in the current Terminal on load of the Extension.
+Python › Terminal: Activate Environment
+Activate Python Environment in all Terminals created.
+Python › Terminal: Execute In File Dir
+When executing a file in the terminal, whether to use execute in the file's directory, instead of the current open folder.
+Python › Terminal › Shell Integration: Enabled
+Enable shell integration for the terminals running python. Shell integration enhances the terminal experience by enabling command decorations, run recent command, improving accessibility among other things.
 
-Process ID (PID): 25372
+Python › Testing: Debug Port
+Port number used for debugging of tests.
+3000
+Debugpy: Show Python Inline Values
+Whether to display inline values in the editor while debugging.
 
-Command line: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command 'try { . "c:\Users\chrism\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}'
+Debug: Hide Launcher While Debugging
+Hide 'Start Debugging' control in title bar of 'Run and Debug' view while debugging is active. Only relevant when Debug: Tool Bar Location is not docked.
 
-The following extensions have contributed to this terminal's environment:
+Debug: Hide Slow Pre Launch Warning
+Hide the warning shown when a preLaunchTask has been running for a while.
 
-Python Debugger: Enables use of no-config debugging, debugpy <script.py>, in the terminal.
+Debug › Terminal: Clear Before Reusing
+Before starting a new debug session in an integrated or external terminal, clear the terminal.
+Terminal › Integrated: Commands To Skip Shell
+A set of command IDs whose keybindings will not be sent to the shell but instead always be handled by VS Code. This allows keybindings that would normally be consumed by the shell to act instead the same as when the terminal is not focused, for example Ctrl+P to launch Quick Open.
+
+ 
+
+Many commands are skipped by default. To override a default and pass that command's keybinding to the shell instead, add the command prefixed with the - character. For example add -workbench.action.quickOpen to allow Ctrl+P to reach the shell.
+
+ 
+
+The following list of default skipped commands is truncated when viewed in Settings Editor. To see the full list, open the default settings JSON and search for the first command from the list below.
+
+ 
+
+Default Skipped Commands:
+
+editor.action.accessibilityHelp
+editor.action.toggleTabFocusMode
+notification.acceptPrimaryAction
+notifications.hideList
+notifications.hideToasts
+runCommands [...]
